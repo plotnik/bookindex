@@ -1,0 +1,5 @@
+= BookIndex
+:icons: font
+
+Generate html index of my library that contains a lot of PDF books.
+This index can be stored on a web site to be accessible everywhere.
