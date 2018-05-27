@@ -72,7 +72,7 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="folder" max="32767" attributes="0"/>
+                  <Component id="folderInput" max="32767" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="folderButton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -85,7 +85,7 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="folderButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="folder" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="folderInput" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
@@ -99,7 +99,7 @@
             <Property name="text" type="java.lang.String" value="Folder:"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="folder">
+        <Component class="javax.swing.JTextField" name="folderInput">
           <Properties>
             <Property name="name" type="java.lang.String" value="" noResource="true"/>
           </Properties>
@@ -239,9 +239,13 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
+              <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jButton3" pref="194" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="indexButton" pref="194" max="32767" attributes="0"/>
+                      <Component id="dropboxButton" max="32767" attributes="0"/>
+                      <Component id="apperyButton" alignment="0" max="32767" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -250,17 +254,34 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jButton3" min="-2" max="-2" attributes="0"/>
+                  <Component id="indexButton" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="dropboxButton" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="apperyButton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JButton" name="jButton3">
+        <Component class="javax.swing.JButton" name="indexButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Create Index"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="dropboxButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Copy into Dropbox"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="apperyButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Upload to Appery"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="apperyButtonActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
