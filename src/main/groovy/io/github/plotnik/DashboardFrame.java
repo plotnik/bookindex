@@ -1,15 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.github.plotnik;
 
 import javax.swing.ListModel;
 
 public class DashboardFrame extends javax.swing.JFrame {
 
-    public ListModel titleListModel;
+    private ListModel titleListModel;
+    private Settings settings;
     
     /**
      * Creates new form DashboardFrame
@@ -20,8 +16,9 @@ public class DashboardFrame extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }
 
-    void setFolder(String folder) {
-        this.folderInput.setText(folder);    
+    void setSettings(Settings settings) {
+        this.settings = settings;
+        this.folderInput.setText(settings.folder);    
     }
     
     /**
@@ -44,7 +41,7 @@ public class DashboardFrame extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        consoleArea = new javax.swing.JTextArea();
         jPanel4 = new javax.swing.JPanel();
         indexButton = new javax.swing.JButton();
         dropboxButton = new javax.swing.JButton();
@@ -121,9 +118,9 @@ public class DashboardFrame extends javax.swing.JFrame {
 
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        consoleArea.setColumns(20);
+        consoleArea.setRows(5);
+        jScrollPane2.setViewportView(consoleArea);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -212,12 +209,16 @@ public class DashboardFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void apperyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_apperyButtonActionPerformed
-        // TODO add your handling code here:
+        new ApperyUpload(this).execute();
     }//GEN-LAST:event_apperyButtonActionPerformed
 
+    void console(String msg) {
+        consoleArea.append(msg + "\n");
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton apperyButton;
+    private javax.swing.JTextArea consoleArea;
     private javax.swing.JButton dropboxButton;
     private javax.swing.JButton folderButton;
     private javax.swing.JTextField folderInput;
@@ -231,7 +232,6 @@ public class DashboardFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JList<String> titleList;
     // End of variables declaration//GEN-END:variables
 }
