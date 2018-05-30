@@ -6,7 +6,7 @@ public class DashboardFrame extends javax.swing.JFrame {
 
     private ListModel titleListModel;
     private Settings settings;
-    
+
     /**
      * Creates new form DashboardFrame
      */
@@ -18,7 +18,11 @@ public class DashboardFrame extends javax.swing.JFrame {
 
     void setSettings(Settings settings) {
         this.settings = settings;
-        this.folderInput.setText(settings.folder);    
+        this.folderInput.setText(settings.getFolder());    
+    }
+    
+    public Settings getSettings() {
+        return settings;
     }
     
     /**
@@ -232,6 +236,6 @@ public class DashboardFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JList<String> titleList;
+    public javax.swing.JList<String> titleList;
     // End of variables declaration//GEN-END:variables
 }

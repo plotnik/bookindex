@@ -1,40 +1,50 @@
 package io.github.plotnik;
 
-import java.io.File;
 import java.util.List;
 import javax.swing.SwingWorker;
 
-public class ApperyUpload extends SwingWorker<Void, String> {
+public class ApperyUpload extends SwingWorker<Void, String> implements IWorker {
     
     DashboardFrame dashboard;
-    String booksHome;
+    Settings settings;
     String monthStamp;
-    
+
     public ApperyUpload(DashboardFrame dashboard) {
         this.dashboard = dashboard;
+        settings = dashboard.getSettings();
+        monthStamp = settings.getMonthStamp();
     }
     
-    void uploadFolder(String path) throws BookException {
-        File f = new File(path);
-        if (!f.exists()) {
-            throw new BookException("File not found: " + f.getPath());
-        }
-        
-    }
-
     @Override
     protected Void doInBackground() {
-        console("Uploading to Appery");
+        List<String> titles = dashboard.titleList.getSelectedValuesList();
+        ApperyClient appery = new ApperyClient(this);
+                
+        console("...Uploading to Appery");
+        try {
+            for (String title: titles) {
+                console(title);
+                appery.updateBook(monthStamp, title);
+            }
+        } catch(Exception e) {
+            console("[ERROR] " + e);
+        }
         return null;
     }
     
     @Override
     protected void process(List<String> msgs) {
-        String msg = msgs.get(msgs.size()-1);
-        dashboard.console(msg);
+        for (String msg: msgs) {
+            dashboard.console(msg);
+        }
     }
     
     public void console(String msg) {
         publish(msg);
     }    
+
+    public Settings getSettings() {
+        return settings;
+    }
+    
 }

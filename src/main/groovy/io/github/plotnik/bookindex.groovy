@@ -44,18 +44,20 @@ try {
     settings.apperyMasterKey = getSetting('appery_master_key')
 
     books = new XmlSlurper().parseText(new File(settings.folder, 'books.xml').text)
-
-
+    settings.books = []
+    
     listModel = new DefaultListModel();
     for (section in books.section) {
         for (book in section.book) {
-            listModel.addElement(book.@title)
+            listModel.addElement(book.@title.toString())
+            settings.books.add(new Book(book, section.@name, settings.getMonthStamp()))
         }
     }
-
+    
     dbd = new DashboardFrame(listModel)
     dbd.setSettings(settings)
     dbd.setVisible(true)
+    
 } catch(BookException e) {
     println "[ERROR] " + e.reason
 }
