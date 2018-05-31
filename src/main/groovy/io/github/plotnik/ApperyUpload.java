@@ -23,7 +23,6 @@ public class ApperyUpload extends SwingWorker<Void, String> implements IWorker {
         console("...Uploading to Appery");
         try {
             for (String title: titles) {
-                console(title);
                 appery.updateBook(monthStamp, title);
             }
         } catch(Exception e) {
