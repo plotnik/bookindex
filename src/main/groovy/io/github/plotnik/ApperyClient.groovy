@@ -39,13 +39,43 @@ public class ApperyClient {
     void updateBook(String mstamp, String title) {
     	worker.console(title)
         Book book = books.find { it.@title == title }
+        updateToc(book)
         if (recordExists(mstamp, title)) {
-            worker.console("Record found")
+            updateBookRecord(book)
         } else {
-            worker.console("Record not found")
-            String imgUrl = uploadImage(book.@name)
-            worker.console("imgUrl: " + imgUrl);
+            book.img = uploadImage(book.@name)
+            createBookRecord(book)
         }
+    }
+    
+    void updateToc(book) {
+        File toc = new File(settings.folder + '/' + book.@source + ".mm")
+        if (toc.exists()) {
+            worker.console("update toc")
+            book.toc = new XmlSlurper().parseText(toc.text)
+            //def root = xml.'*'.find { it.@TEXT==book.@title }
+            //assert root!=null
+        }
+    }
+
+    String protocol = "https";
+    String apperyHost = "api.appery.io";
+    String apperyBooksPath = "/rest/1/db/collections/Books";
+    String apperyBooksUrl = protocol + "://" + apperyHost + apperyBooksPath;
+    
+    void createBookRecord(book) {
+        HttpPost httppost = new HttpPost(apperyBooksUrl)
+        worker.console "book json:" + book.toJson()
+        httppost.setEntity(book.toJson()); 
+        httppost.addHeader("Content-Type", "application/json")
+        httppost.addHeader("X-Appery-Database-Id", settings.apperyDbId)
+        httppost.addHeader("X-Appery-Master-Key", settings.apperyMasterKey)
+        String responseBody = httpclient.execute(httppost, new BasicResponseHandler())
+        worker.console("--- responseBody: " + responseBody)
+    }
+
+    void updateBookRecord(book) {
+        
     }
     
     String uploadImage(String bookName) {
@@ -53,7 +83,7 @@ public class ApperyClient {
         File imageFile = new File(settings.folder + "/img/" + bookName + ".jpg")
         String file_name = bookName.replace(' ','_')
         
-        HttpPost httppost = new HttpPost('https://api.appery.io/rest/1/db/files/');
+        HttpPost httppost = new HttpPost("${protocol}://${apperyHost}/rest/1/db/files/");
         def reqEntity = MultipartEntityBuilder.create()
                         .setContentType(ContentType.MULTIPART_FORM_DATA)
                         .addPart(file_name, new FileBody(imageFile))
@@ -69,9 +99,9 @@ public class ApperyClient {
     
     boolean recordExists(String mstamp, String title) {
         URIBuilder uriBuilder = new URIBuilder()
-            .setScheme("https")
-            .setHost("api.appery.io")
-            .setPath("/rest/1/db/collections/Books")
+            .setScheme(protocol)
+            .setHost(apperyHost)
+            .setPath(apperyBooksPath)
             .addParameter("where", JsonOutput.toJson([
                 "mstamp":mstamp, "title":title]))
         

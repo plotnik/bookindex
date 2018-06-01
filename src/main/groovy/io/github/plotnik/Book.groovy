@@ -1,5 +1,7 @@
 package io.github.plotnik
 
+import groovy.json.*
+
 public class Book {
 
     String name
@@ -15,7 +17,7 @@ public class Book {
 
     Object toc
 
-	public Book(book, section1, mstamp) {
+    public Book(book, section1, mstamp) {
         name = book.@name
         title = book.@title
         author = book.@author
@@ -26,5 +28,9 @@ public class Book {
         sections.addAll(book.section*.@name)
 
         this.mstamp = mstamp
-	}
+    }
+    
+    String toJson() {
+        return JsonOutput.toJson(this)
+    }
 }

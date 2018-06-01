@@ -10,38 +10,14 @@ println "   Parameter: property_file"
 // https://docs.oracle.com/javase/tutorial/uiswing/components/filechooser.html
 
 
-pp = new Properties();
-
-targetPropName = System.getProperty('user.home') + '/.plotnik/bookindex.properties'
-propName = targetPropName
+propName = null
 if (args.length > 0) {
     propName = args[0]
 }
 
-void loadProperties() {
-    File f = new File(propName)
-    if (f.exists()) {
-        FileInputStream fin = new FileInputStream(f.path);
-        pp.load(fin);
-        fin.close();
-    }
-}
-
-loadProperties()
-
-String getSetting(String name) {
-    String value = pp.getProperty(name)
-    if (value == null) {
-        throw new BookException("Property required: " + name)
-    }
-    return value
-}
-
 try {
     settings = new Settings()
-    settings.folder = getSetting('folder')
-    settings.apperyDbId = getSetting('appery_db_id')
-    settings.apperyMasterKey = getSetting('appery_master_key')
+    settings.loadProperties(propName)
 
     books = new XmlSlurper().parseText(new File(settings.folder, 'books.xml').text)
     settings.books = []
