@@ -27,10 +27,23 @@ public class Book {
         sections.add(section1)
         sections.addAll(book.section*.@name)
 
+        links = []
+        sections.addAll(book.a*.@href)
+        
         this.mstamp = mstamp
     }
     
-    String toJson() {
-        return JsonOutput.toJson(this)
+    public String toJson() {
+        println "toJson $toc ---" 
+        String result = JsonOutput.toJson([
+            "name":name, "title":title, 
+            "author":author, "source": source,
+            "links": links, 
+            "sections": sections,
+            "mstamp": mstamp, "img": img,
+            "toc": toc
+            ]);
+        println "result: " + result
+        return result
     }
 }
