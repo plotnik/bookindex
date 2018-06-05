@@ -26,11 +26,11 @@ public class ApperyClient {
 
     CloseableHttpClient httpclient = HttpClients.createDefault();
     JsonSlurper jsonSlurper = new JsonSlurper();
-    
+
     public ApperyClient(IWorker worker) {
         this.worker = worker;
         settings = worker.getSettings();
-        books = worker.getSettings().getBooks();    
+        books = worker.getSettings().getBooks();
     }
 
     void updateBook(String mstamp, String title) {
@@ -44,7 +44,7 @@ public class ApperyClient {
             createBookRecord(book);
         }
     }
-    
+
     void updateToc(Book book) {
         File toc = new File(settings.folder + "/" + book.@source + ".mm");
         if (!toc.exists()) {
@@ -52,24 +52,21 @@ public class ApperyClient {
             return
         }
         worker.console("update toc");
-        def root = new XmlSlurper().parseText(toc.text)
-        book.toc = convertToMap(root.node);
-        println "updateToc ${book.toc} ---"
+        def root = new XmlParser().parseText(toc.text)
+        book.toc = new TocConverter(root, book.title).convert();
+        //println "updateToc ${book.toc} ---"
     }
 
-    Map convertToMap(nodelist) {
-        
-    }
-    
     String protocol = "https";
     String apperyHost = "api.appery.io";
     String apperyBooksPath = "/rest/1/db/collections/Books";
     String apperyBooksUrl = protocol + "://" + apperyHost + apperyBooksPath;
-    
+
     void createBookRecord(Book book) {
         HttpPost httppost = new HttpPost(apperyBooksUrl);
-        worker.console("book json:" + book.toJson());
-        httppost.setEntity(new StringEntity(book.toJson(), ContentType.APPLICATION_JSON)); 
+        def json = book.toJson()
+        worker.console("book json:" + json);
+        httppost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
         httppost.addHeader("Content-Type", "application/json");
         httppost.addHeader("X-Appery-Database-Id", settings.apperyDbId);
         httppost.addHeader("X-Appery-Master-Key", settings.apperyMasterKey);
@@ -78,28 +75,28 @@ public class ApperyClient {
     }
 
     void updateBookRecord(book) {
-        
+
     }
-    
+
     String uploadImage(String bookName) {
         worker.console("uploadImage " + bookName)
         File imageFile = new File(settings.folder + "/img/" + bookName + ".jpg")
         String file_name = bookName.replace(' ','_')
-        
+
         HttpPost httppost = new HttpPost("${protocol}://${apperyHost}/rest/1/db/files/");
         def reqEntity = MultipartEntityBuilder.create()
                         .setContentType(ContentType.MULTIPART_FORM_DATA)
                         .addPart(file_name, new FileBody(imageFile))
                         .build();
-                        
-        httppost.setEntity(reqEntity); 
+
+        httppost.setEntity(reqEntity);
         httppost.addHeader("X-Appery-Database-Id", settings.apperyDbId);
         httppost.addHeader("X-Appery-Master-Key", settings.apperyMasterKey);
-        
-        String responseBody = httpclient.execute(httppost, new BasicResponseHandler()); 
-        return jsonSlurper.parseText(responseBody).success.filename[0] //.fileurl[0]    
+
+        String responseBody = httpclient.execute(httppost, new BasicResponseHandler());
+        return jsonSlurper.parseText(responseBody).success.filename[0] //.fileurl[0]
     }
-    
+
     boolean recordExists(String mstamp, String title) {
         URIBuilder uriBuilder = new URIBuilder()
             .setScheme(protocol)
@@ -107,15 +104,15 @@ public class ApperyClient {
             .setPath(apperyBooksPath)
             .addParameter("where", JsonOutput.toJson([
                 "mstamp":mstamp, "title":title]))
-        
+
         HttpGet httpGet = new HttpGet(uriBuilder.build());
         httpGet.addHeader("X-Appery-Database-Id", settings.apperyDbId)
         httpGet.addHeader("X-Appery-Master-Key", settings.apperyMasterKey)
-        
+
         String responseBody = httpclient.execute(httpGet, new BasicResponseHandler())
         def resp = jsonSlurper.parseText(responseBody)
         worker.console("--- responseBody: " + responseBody)
         return resp.size()!=0
     }
-    
+
 }
