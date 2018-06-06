@@ -1,6 +1,12 @@
 package io.github.plotnik;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 public class Settings {
@@ -11,7 +17,12 @@ public class Settings {
     private String apperyDbId;
     private String apperyMasterKey;
 
-    List books = []
+    private List<Book> books;
+
+    String targetFolderPath = System.getProperty("user.home") + "/.plotnik";
+    String targetPropName = targetFolderPath + "/bookindex.properties";
+    Properties pp = new Properties();
+
 
     public String getFolder() {
         return folder;
@@ -54,47 +65,53 @@ public class Settings {
         this.apperyMasterKey = apperyMasterKey;
     }
     
-    String targetPropName = System.getProperty('user.home') + '/.plotnik/bookindex.properties';
-    Properties pp = new Properties();
-
-    void loadProperties(propName) {
+    void loadProperties(String propName) throws FileNotFoundException, IOException {
         if (propName==null) {
-            propName = targetPropName
+            propName = targetPropName;
         }
-        File f = new File(propName)
+        File f = new File(propName);
         if (f.exists()) {
-            FileInputStream fin = new FileInputStream(f.path);
+            FileInputStream fin = new FileInputStream(f.getPath());
             pp.load(fin);
             fin.close();
         }
         
-        folder = getSetting('folder')
-        apperyDbId = getSetting('appery_db_id')
-        apperyMasterKey = getSetting('appery_master_key')
+        setFolder(getSetting("folder"));
+        apperyDbId = getSetting("appery_db_id");
+        apperyMasterKey = getSetting("appery_master_key");
     }
     
     String getSetting(String name) {
-        String value = pp.getProperty(name)
+        String value = pp.getProperty(name);
         if (value == null) {
-            throw new BookException("Property required: " + name)
+            throw new BookException("Property required: " + name);
         }
-        return value
+        return value;
     }
 
     /** We are changing properties in `user.home` only. */
-    void saveProperties() {
+    void saveProperties() throws FileNotFoundException, IOException {
         // update `folder` value
-        pp.setProperty("folder", folder)
+        pp.setProperty("folder", folder);
         
         // check if folder in `user.home` exists
-        File targetFolder = new File(System.getProperty('user.home') + '/.plotnik')
+        File targetFolder = new File(targetFolderPath);
         if (!targetFolder.exists()) {
-            targetFolder.mkdir()
+            targetFolder.mkdir();
         }
         
         // write property-file
         FileOutputStream out = new FileOutputStream(targetPropName);
-        properties.save(out, null);
+        pp.store(out, null);
         out.close();
     }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+
 }
