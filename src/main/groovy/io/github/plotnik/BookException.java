@@ -7,4 +7,8 @@ public class BookException extends RuntimeException {
     public BookException(String reason) {
         this.reason = reason;
     }
+    
+    public String getReason() {
+        return reason;
+    }
 }

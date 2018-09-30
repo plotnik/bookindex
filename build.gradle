@@ -57,3 +57,8 @@ javadoc {
     options.memberLevel = JavadocMemberLevel.PACKAGE
     options.addStringOption "-base-dir", "${projectDir}"
 }
+
+task run(type:JavaExec) {
+   main = mainClass
+   classpath = sourceSets.main.runtimeClasspath
+}

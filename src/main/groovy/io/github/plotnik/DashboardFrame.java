@@ -1,6 +1,10 @@
 package io.github.plotnik;
 
+import java.io.File;
+import java.io.IOException;
+import javax.swing.JFileChooser;
 import javax.swing.ListModel;
+import javax.swing.UIManager;
 
 public class DashboardFrame extends javax.swing.JFrame {
 
@@ -14,6 +18,8 @@ public class DashboardFrame extends javax.swing.JFrame {
         this.titleListModel = titleListModel;
         initComponents();
         setLocationRelativeTo(null);
+        setTitle("BookIndex");
+        UIManager.put("FileChooser.readOnly", Boolean.TRUE);
     }
 
     void setSettings(Settings settings) {
@@ -60,6 +66,11 @@ public class DashboardFrame extends javax.swing.JFrame {
         folderInput.setName(""); // NOI18N
 
         folderButton.setText("Select");
+        folderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectFolderActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -215,6 +226,39 @@ public class DashboardFrame extends javax.swing.JFrame {
     private void apperyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_apperyButtonActionPerformed
         new ApperyUpload(this).execute();
     }//GEN-LAST:event_apperyButtonActionPerformed
+
+    private void selectFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectFolderActionPerformed
+        JFileChooser fchooser = new JFileChooser() {
+            public void approveSelection() {
+                if (getSelectedFile().exists()) {
+                    super.approveSelection();
+                } else {
+                    return;
+                }
+            }         
+        };
+        try {
+            settings.setFolder(folderInput.getText());
+            fchooser.setFileFilter(new FileChooserFilter());
+            fchooser.setSelectedFile(new File(settings.getFolder(), "books.xml"));
+            int returnVal = fchooser.showOpenDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                settings.setFolder(fchooser.getSelectedFile().getParent());
+                folderInput.setText(settings.getFolder());
+                bookindex.updateListModel(titleListModel, settings);
+                titleList.clearSelection();
+                try {
+                    settings.saveProperties();
+                    console("Folder changed to " + settings.getFolder());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (BookException e) {
+            folderInput.setText(settings.getFolder());
+            console("[ERROR] " + e.getReason());
+        }
+    }//GEN-LAST:event_selectFolderActionPerformed
 
     void console(String msg) {
         consoleArea.append(msg + "\n");

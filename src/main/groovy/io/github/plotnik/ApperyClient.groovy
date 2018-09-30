@@ -84,7 +84,7 @@ public class ApperyClient {
         httpput.addHeader("X-Appery-Master-Key", settings.apperyMasterKey);
         String responseBody = httpclient.execute(httpput, new BasicResponseHandler());
         //worker.console("--- updateBookRecord response: " + responseBody);
-        worker.console("Book updated")
+        worker.console("...updated")
     }
 
     String uploadImage(String bookName) {

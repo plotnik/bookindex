@@ -33,20 +33,20 @@ public class Settings {
     }
 
     public void setFolder(String folder) throws BookException {
-        this.folder = folder;
         File f = new File(folder);
         if (!f.exists()) {
-            throw new BookException("Folder not found");
+            throw new BookException("Folder not found: " + folder);
         }
         String mstamp = f.getName();
         if (!Pattern.matches("\\d{2}-\\d{2}", mstamp)) {
-            throw new BookException("Folder name should be a month stamp");
+            throw new BookException("Folder name should be a month stamp: " + f.getPath());
         }
         monthStamp = mstamp;
         File b = new File(folder, "books.xml");
         if (!b.exists()) {
-            throw new BookException("Missing `books.xml` index in folder");
+            throw new BookException("Missing `books.xml` file in folder: " + f.getPath());
         }
+        this.folder = folder;
     }
 
     public String getApperyDbId() {
@@ -69,6 +69,7 @@ public class Settings {
         if (propName==null) {
             propName = targetPropName;
         }
+        System.out.println("Using properties: " + propName);
         File f = new File(propName);
         if (f.exists()) {
             FileInputStream fin = new FileInputStream(f.getPath());
