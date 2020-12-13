@@ -6,5 +6,6 @@ README.html
 .project
 
 /.nb-gradle/
+/.vscode/
 /build/
 /bin/
