@@ -9,11 +9,21 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+/**
+ * Файл с текущими настройками.
+ * По дефолту мы храним его в каталоге пользователя
+ * под именеме `~/.plotnik/bookindex.properties`.
+ */
 public class Settings {
-    
+
+    /**
+     * Путь к папке с книгами для определенного месяца,
+     * например `~/Dropbox/Public/books/18-06`
+     */
     private String folder;
+
     private String monthStamp;
-    
+
     private String apperyDbId;
     private String apperyMasterKey;
 
@@ -64,9 +74,17 @@ public class Settings {
     public void setApperyMasterKey(String apperyMasterKey) {
         this.apperyMasterKey = apperyMasterKey;
     }
-    
+
+    /**
+     * Загрузить файл с текущими настройками.
+     *
+     * @param propName  Имя файла настроек.
+     *                  Для `null` или пустой строки будет использовано значение по умолчанию.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     void loadProperties(String propName) throws FileNotFoundException, IOException {
-        if (propName==null) {
+        if (propName == null || propName.length() == 0) {
             propName = targetPropName;
         }
         System.out.println("Using properties: " + propName);
@@ -76,12 +94,12 @@ public class Settings {
             pp.load(fin);
             fin.close();
         }
-        
+
         setFolder(getSetting("folder"));
         apperyDbId = getSetting("appery_db_id");
         apperyMasterKey = getSetting("appery_master_key");
     }
-    
+
     String getSetting(String name) {
         String value = pp.getProperty(name);
         if (value == null) {
@@ -94,13 +112,13 @@ public class Settings {
     void saveProperties() throws FileNotFoundException, IOException {
         // update `folder` value
         pp.setProperty("folder", folder);
-        
+
         // check if folder in `user.home` exists
         File targetFolder = new File(targetFolderPath);
         if (!targetFolder.exists()) {
             targetFolder.mkdir();
         }
-        
+
         // write property-file
         FileOutputStream out = new FileOutputStream(targetPropName);
         pp.store(out, null);

@@ -2,19 +2,17 @@ package io.github.plotnik;
 
 import java.io.File;
 import java.io.IOException;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
-import javax.swing.ListModel;
 import javax.swing.UIManager;
 
 public class DashboardFrame extends javax.swing.JFrame {
 
-    private ListModel titleListModel;
+    private DefaultListModel titleListModel;
     private Settings settings;
 
-    /**
-     * Creates new form DashboardFrame
-     */
-    public DashboardFrame(ListModel titleListModel) {
+    public DashboardFrame(DefaultListModel titleListModel) {
         this.titleListModel = titleListModel;
         initComponents();
         setLocationRelativeTo(null);
@@ -24,13 +22,13 @@ public class DashboardFrame extends javax.swing.JFrame {
 
     void setSettings(Settings settings) {
         this.settings = settings;
-        this.folderInput.setText(settings.getFolder());    
+        this.folderInput.setText(settings.getFolder());
     }
-    
+
     public Settings getSettings() {
         return settings;
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -235,7 +233,7 @@ public class DashboardFrame extends javax.swing.JFrame {
                 } else {
                     return;
                 }
-            }         
+            }
         };
         try {
             settings.setFolder(folderInput.getText());

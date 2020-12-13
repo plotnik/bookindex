@@ -1,6 +1,6 @@
 apply plugin: 'groovy'
 
-sourceCompatibility = '1.8'
+//sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 if (!hasProperty('mainClass')) {
@@ -24,10 +24,17 @@ jar {
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.4.14'
-    compile 'org.apache.pdfbox:pdfbox:2.0.9'
-    compile 'org.apache.httpcomponents:httpclient:4.5.5'
-    compile 'org.apache.httpcomponents:httpmime:4.5.5'
+    implementation 'org.codehaus.groovy:groovy-all:3.0.7'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.21'
+    implementation 'info.picocli:picocli:4.5.2'
+
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    implementation 'org.apache.httpcomponents:httpmime:4.5.13'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.12.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.0'
 }
 
 /* Asciidoclet links:
@@ -37,6 +44,7 @@ dependencies {
  *   https://docs.gradle.org/current/javadoc/org/gradle/external/javadoc/StandardJavadocDocletOptions.html
  */
 
+/*
 configurations {
     asciidoclet
 }
@@ -48,7 +56,7 @@ dependencies {
 javadoc {
     options.docletpath = configurations.asciidoclet.files.asType(List)
     options.doclet = 'org.asciidoctor.Asciidoclet'
-    options.overview = "src/main/groovy/overview.adoc"
+    //options.overview = "src/main/groovy/overview.adoc"
     options.links = [
         'http://docs.oracle.com/javase/8/docs/api/',
         'https://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/'
@@ -57,8 +65,9 @@ javadoc {
     options.memberLevel = JavadocMemberLevel.PACKAGE
     options.addStringOption "-base-dir", "${projectDir}"
 }
+*/
 
 task run(type:JavaExec) {
-   main = mainClass
+   main = 'io.github.plotnik.bookindex'
    classpath = sourceSets.main.runtimeClasspath
 }
