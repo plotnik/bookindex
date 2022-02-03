@@ -11,6 +11,7 @@ repositories {
     mavenCentral()
 }
 
+/*
 jar {
     baseName = 'bookindex'
 
@@ -21,12 +22,25 @@ jar {
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}*/
+
+task fatjar(type: Jar) {
+    manifest {
+        attributes "Main-Class": "io.github.plotnik.bookindex"
+    }
+    baseName = "bookindex-all"
+    from {
+        configurations.compileClasspath.filter{ it.exists() }
+            .collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
 }
 
+
 dependencies {
-    implementation 'org.codehaus.groovy:groovy-all:3.0.7'
-    implementation 'org.apache.pdfbox:pdfbox:2.0.21'
-    implementation 'info.picocli:picocli:4.5.2'
+    implementation 'org.codehaus.groovy:groovy-all:3.0.9'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.25'
+    implementation 'info.picocli:picocli:4.6.2'
 
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpmime:4.5.13'

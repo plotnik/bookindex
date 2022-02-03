@@ -19,25 +19,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/* Useful links:
- *
- * ApperyUnit Dashboard::
- * https://github.com/a-services/apperyunit/blob/master/src/main/groovy/io/appery/apperyunit/DashboardFrame.java
- *
- * Swing FileChooser::
- * https://docs.oracle.com/javase/tutorial/uiswing/components/filechooser.html
- */
 
-@Command(name = "bookindex", mixinStandardHelpOptions = true, version = "1.0", description = "Generate html index of my library that contains a lot of PDF books.")
+@Command(header = {
+    "@|cyan    888                        888      d8b               888                   |@",
+    "@|cyan    888                        888      Y8P               888                   |@",
+    "@|cyan    888                        888                        888                   |@",
+    "@|cyan    88888b.   .d88b.   .d88b.  888  888 888 88888b.   .d88888  .d88b.  888  888 |@",
+    "@|cyan    888 \"88b d88\"\"88b d88\"\"88b 888 .88P 888 888 \"88b d88\" 888 d8P  Y8b `Y8bd8P' |@",
+    "@|cyan    888  888 888  888 888  888 888888K  888 888  888 888  888 88888888   X88K   |@",
+    "@|cyan    888 d88P Y88..88P Y88..88P 888 \"88b 888 888  888 Y88b 888 Y8b.     .d8\"\"8b. |@",
+    "@|cyan    88888P\"   \"Y88P\"   \"Y88P\"  888  888 888 888  888  \"Y88888  \"Y8888  888  888 |@",
+    ""
+    },
+    name = "bookindex", mixinStandardHelpOptions = true, version = "1.0",
+    description = "Generate html index of my library that contains a lot of PDF books.")
 public class bookindex implements Runnable {
 
-    @Parameters(index = "0", description = "Name of property file.", defaultValue = "")
+    @Option(names = {"-p", "--props"}, description = "Name of property file.")
     String propertyFileName;
 
-    @Option(names = "--noui", description = "No UI needed")
-    boolean noUI;
+    @Option(names = {"-d", "--dashboard"}, description = "Open dashboard")
+    boolean dashboard;
 
     Object lock = new Object();
+
+    Settings settings = new Settings();
 
     public static void main(String[] args) {
         System.exit(new CommandLine(new bookindex()).execute(args));
@@ -46,29 +52,11 @@ public class bookindex implements Runnable {
     public void run() {
         try {
             /* Загрузить файл с текущими настройками.
-            */
-            Settings settings = new Settings();
+             */
             settings.loadProperties(propertyFileName);
 
-            /* Загрузить список книг из текущей папки в `ListModel` для виджета списка.
-            */
-            DefaultListModel listModel = new DefaultListModel();
-            updateListModel(listModel, settings);
-
-            if (noUI) {
-                return;
-            }
-
-            /* Открыть окно дашборда.
-            */
-            DashboardFrame dbd = new DashboardFrame(listModel);
-            dbd.setSettings(settings);
-            dbd.setVisible(true);
-
-            try {
-                waitUntilClosed(dbd);
-            } catch (InterruptedException e) {
-                out.println("[InterruptedException] " + e.getMessage());
+            if (dashboard) {
+                openDashboard();
             }
 
         } catch (Exception e) {
@@ -78,6 +66,25 @@ public class bookindex implements Runnable {
             }
             out.println("[ERROR] " + msg);
             e.printStackTrace();
+        }
+    }
+
+    void openDashboard() {
+        /* Загрузить список книг из текущей папки в `ListModel` для виджета списка.
+         */
+        DefaultListModel listModel = new DefaultListModel();
+        updateListModel(listModel, settings);
+
+        /* Открыть окно дашборда.
+         */
+        DashboardFrame dbd = new DashboardFrame(listModel);
+        dbd.setSettings(settings);
+        dbd.setVisible(true);
+
+        try {
+            waitUntilClosed(dbd);
+        } catch (InterruptedException e) {
+            out.println("[InterruptedException] " + e.getMessage());
         }
     }
 
