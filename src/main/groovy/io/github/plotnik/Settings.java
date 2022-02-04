@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import static java.lang.System.*;
+import static io.github.plotnik.bookindex.verbose;
+
 /**
  * Файл с текущими настройками.
  * По дефолту мы храним его в каталоге пользователя
@@ -87,7 +90,7 @@ public class Settings {
         if (propName == null || propName.length() == 0) {
             propName = targetPropName;
         }
-        System.out.println("Using properties: " + propName);
+
         File f = new File(propName);
         if (f.exists()) {
             FileInputStream fin = new FileInputStream(f.getPath());
@@ -98,6 +101,11 @@ public class Settings {
         setFolder(getSetting("folder"));
         apperyDbId = getSetting("appery_db_id");
         apperyMasterKey = getSetting("appery_master_key");
+
+        if (verbose) {
+            out.println("Using properties: " + propName);
+            out.println(pp.toString());
+        }
     }
 
     String getSetting(String name) {

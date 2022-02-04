@@ -11,6 +11,7 @@ import java.awt.event.WindowEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import java.io.File;
 
 import picocli.CommandLine;
 import static picocli.CommandLine.*;
@@ -31,7 +32,7 @@ import java.util.concurrent.Callable;
     "@|cyan    88888P\"   \"Y88P\"   \"Y88P\"  888  888 888 888  888  \"Y88888  \"Y8888  888  888 |@",
     ""
     },
-    name = "bookindex", mixinStandardHelpOptions = true, version = "1.0",
+    name = "bookindex", mixinStandardHelpOptions = true, version = "1.1",
     description = "Generate html index of my library that contains a lot of PDF books.")
 public class bookindex implements Runnable {
 
@@ -40,6 +41,13 @@ public class bookindex implements Runnable {
 
     @Option(names = {"-d", "--dashboard"}, description = "Open dashboard")
     boolean dashboard;
+
+    @Option(names = {"-f", "--file"}, description = "Input PDF file")
+    String inputFilePdf;
+
+    @Option(names = {"-v", "--verbose"}, description = "Verbose output")
+    static boolean verbose;
+
 
     Object lock = new Object();
 
@@ -59,14 +67,41 @@ public class bookindex implements Runnable {
                 openDashboard();
             }
 
+            if (inputFilePdf != null) {
+                extractTOC(inputFilePdf);
+            }
+
         } catch (Exception e) {
             String msg = e.getMessage();
             if (e instanceof BookException) {
                 msg = ((BookException) e).getReason();
             }
             out.println("[ERROR] " + msg);
-            e.printStackTrace();
+            //e.printStackTrace();
         }
+    }
+
+    void extractTOC(String inputFilePdf) {
+
+
+        Console console = new Console();
+        console.setTitle("bookindex");
+        console.setVisible(true);
+        PdfExtractor pe = new PdfExtractor(console);
+        try {
+            pe.process(inputFilePdf);
+
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            if (e instanceof BookException) {
+                msg = ((BookException) e).getReason();
+            }
+            out.println("[ERROR] " + msg);
+            console.error("[ERROR] " + msg);
+            //e.printStackTrace();
+        }
+
+        waitUntilClosed(console);
     }
 
     void openDashboard() {
@@ -81,42 +116,43 @@ public class bookindex implements Runnable {
         dbd.setSettings(settings);
         dbd.setVisible(true);
 
+        waitUntilClosed(dbd);
+    }
+
+    void waitUntilClosed(JFrame frame) {
         try {
-            waitUntilClosed(dbd);
+            Thread t = new Thread() {
+                public void run() {
+                    synchronized (lock) {
+                        while (frame.isVisible()) {
+                            try {
+                                lock.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        //out.println("Working now");
+                    }
+                }
+            };
+            t.start();
+
+            frame.addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosing(WindowEvent arg0) {
+                    synchronized (lock) {
+                        frame.setVisible(false);
+                        lock.notify();
+                    }
+                }
+
+            });
+
+            t.join();
         } catch (InterruptedException e) {
             out.println("[InterruptedException] " + e.getMessage());
         }
-    }
-
-    void waitUntilClosed(JFrame frame) throws InterruptedException {
-        Thread t = new Thread() {
-            public void run() {
-                synchronized (lock) {
-                    while (frame.isVisible())
-                        try {
-                            lock.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    out.println("Working now");
-                }
-            }
-        };
-        t.start();
-
-        frame.addWindowListener(new WindowAdapter() {
-
-            @Override
-            public void windowClosing(WindowEvent arg0) {
-                synchronized (lock) {
-                    frame.setVisible(false);
-                    lock.notify();
-                }
-            }
-
-        });
-
-        t.join();
     }
 
     /**
