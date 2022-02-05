@@ -92,8 +92,16 @@ public class Console extends JFrame implements IConsole {
         refreshTitle();
     }
 
+    public JFrame getFrame() {
+        return this;
+    }
+
     public void log(String s) {
         log(s, COLOR_INFO);
+    }
+
+    public void append(String s) {
+        append(s, COLOR_INFO);
     }
 
     public void log(String s, Color c) {
@@ -154,9 +162,8 @@ public class Console extends JFrame implements IConsole {
     }
 
     /**
-     * This method initializes jTextArea
-     *
-     * @return javax.swing.JTextPane
+     * JTextPane tutorial:
+     * https://docs.oracle.com/javase/tutorial/uiswing/components/text.html
      */
     public JTextPane getJTextPane() {
         if (jTextPane == null) {

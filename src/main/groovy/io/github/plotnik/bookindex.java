@@ -82,14 +82,13 @@ public class bookindex implements Runnable {
     }
 
     void extractTOC(String inputFilePdf) {
-
-
         Console console = new Console();
         console.setTitle("bookindex");
         console.setVisible(true);
         PdfExtractor pe = new PdfExtractor(console);
         try {
-            pe.process(inputFilePdf);
+            int result = pe.process(inputFilePdf);
+            console.log("\n== Result: " + (result==0? "SUCCESS":"ERROR"));
 
         } catch (Exception e) {
             String msg = e.getMessage();
