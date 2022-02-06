@@ -45,6 +45,9 @@ public class bookindex implements Runnable {
     @Option(names = {"-f", "--file"}, description = "Input PDF file")
     String inputFilePdf;
 
+    @Option(names = {"-s", "--safe"}, description = "Ask for confirmations when rewriting generated files")
+    static boolean safeMode;
+
     @Option(names = {"-v", "--verbose"}, description = "Verbose output")
     static boolean verbose;
 
@@ -85,7 +88,7 @@ public class bookindex implements Runnable {
         Console console = new Console();
         console.setTitle("bookindex");
         console.setVisible(true);
-        PdfExtractor pe = new PdfExtractor(console);
+        PdfExtractor pe = new PdfExtractor(console, safeMode);
         try {
             int result = pe.process(inputFilePdf);
             console.log("\n== Result: " + (result==0? "SUCCESS":"ERROR"));

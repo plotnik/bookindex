@@ -1,5 +1,38 @@
-= BookIndex
+= Generate html index of my library that contains a lot of PDF books
 :icons: font
 
+== Usage
+
+----
+   888                        888      d8b               888
+   888                        888      Y8P               888
+   888                        888                        888
+   88888b.   .d88b.   .d88b.  888  888 888 88888b.   .d88888  .d88b.  888  888
+   888 "88b d88""88b d88""88b 888 .88P 888 888 "88b d88" 888 d8P  Y8b `Y8bd8P'
+   888  888 888  888 888  888 888888K  888 888  888 888  888 88888888   X88K
+   888 d88P Y88..88P Y88..88P 888 "88b 888 888  888 Y88b 888 Y8b.     .d8""8b.
+   88888P"   "Y88P"   "Y88P"  888  888 888 888  888  "Y88888  "Y8888  888  888
+
+Usage: bookindex [-dhvV] [-f=<inputFilePdf>] [-p=<propertyFileName>]
 Generate html index of my library that contains a lot of PDF books.
-This index can be stored on a web site to be accessible everywhere.
+  -d, --dashboard   Open dashboard
+  -f, --file=<inputFilePdf>
+                    Input PDF file
+  -h, --help        Show this help message and exit.
+  -p, --props=<propertyFileName>
+                    Name of property file.
+  -v, --verbose     Verbose output
+  -V, --version     Print version information and exit.
+----
+
+== Property file
+
+folder::
+Local folder with `books.xml`
+
+appery_db_id::
+link:https://appery.io[Appery.io] database ID to save data
+
+appery_master_key::
+link:https://appery.io[Appery.io] database master key
+

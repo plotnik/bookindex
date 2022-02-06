@@ -10,8 +10,10 @@ public class PdfExtractor {
 
     final boolean useSwingProgress = true;
     final boolean createTocHtml = true;
+    final boolean createMM = true;
 
     IConsole console;
+    boolean safeMode;
     String bookFolder;
     String bookTitle;
 
@@ -20,14 +22,19 @@ public class PdfExtractor {
     String content;
     int tocNum;
 
-    PdfExtractor(IConsole console) {
+    PdfExtractor(IConsole console, boolean safeMode) {
         this.console = console;
+        this.safeMode = safeMode;
         bookFolder = new File(".").getCanonicalPath() + "/";
     }
 
     // Check "books.xml" for book code
     def getBookCode(bookName) {
-        def books = new XmlSlurper().parseText(new File(bookFolder+"books.xml").text)
+        def f = new File(bookFolder+"books.xml");
+        if (!f.exists()) {
+            throw new BookException("File not found: books.xml");
+        }
+        def books = new XmlSlurper().parseText(f.text)
         //println "books: "+books
         for (def section in books.section) {
             //println "section: "+section
@@ -39,7 +46,7 @@ public class PdfExtractor {
                 }
             }
         }
-        return null
+        throw new BookException("No sections found in books.xml");
     }
 
     public int process(String bookName) {
@@ -61,14 +68,31 @@ public class PdfExtractor {
 
         String mmname = bookCode + ".mm"
         String tocname = bookCode + ".toc.html"
-        boolean overwriteMM = true
-        if (new File(bookFolder+mmname).exists()) {
-            int ok = JOptionPane.showConfirmDialog(
-                console.frame,
-                "$mmname already exists. Overwrite?",
-                "Confirmation", JOptionPane.YES_NO_OPTION);
-            if (ok!=0) {
-                return 1;
+
+        if (createMM & new File(bookFolder + mmname).exists()) {
+            if (safeMode) {
+                int ok = JOptionPane.showConfirmDialog(
+                    console.frame,
+                    "$mmname already exists. Overwrite?",
+                    "Confirmation", JOptionPane.YES_NO_OPTION);
+                if (ok!=0) {
+                    return 1;
+                }
+            } else {
+                console.log("Owerwriting " + mmname);
+            }
+        }
+        if (createTocHtml & new File(bookFolder + tocname).exists()) {
+            if (safeMode) {
+                int ok = JOptionPane.showConfirmDialog(
+                    console.frame,
+                    "$tocname already exists. Overwrite?",
+                    "Confirmation", JOptionPane.YES_NO_OPTION);
+                if (ok!=0) {
+                    return 1;
+                }
+            } else {
+                console.log("Owerwriting " + tocname);
             }
         }
 
@@ -85,7 +109,7 @@ public class PdfExtractor {
             return 1
         }
 
-        if (overwriteMM) {
+        if (createMM) {
             writer = new FileWriter(mmname)
         }
         if (createTocHtml) {
@@ -134,7 +158,7 @@ public class PdfExtractor {
 
         // print `content` into ".mm" file
 
-        def xml = """<map version="0.9.0">
+        def mmTemplate = """<map version="0.9.0">
         <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
         <node TEXT="$bookFolder">
         <node TEXT="$bookTitle">
@@ -156,10 +180,10 @@ public class PdfExtractor {
         <node LINK="${bookName}" POSITION="left" TEXT="PDF"/>
 
         </node>
-        </map>"""
+        </map>""".stripIndent()
 
-        if (overwriteMM) {
-            writer << xml
+        if (createMM) {
+            writer << mmTemplate
             writer.close()
             println "$mmname created"
         }
