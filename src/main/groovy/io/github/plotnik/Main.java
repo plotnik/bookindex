@@ -45,6 +45,9 @@ public class Main implements Runnable {
     @Option(names = {"-b", "--books"}, description = "Books home folder")
     String bookHome;
 
+    @Option(names = {"-i", "--index"}, description = "Index output file", defaultValue="all_sections.html")
+    String indexFile;
+
     @Option(names = {"-f", "--file"}, description = "Input PDF file")
     String inputFilePdf;
 
@@ -94,7 +97,7 @@ public class Main implements Runnable {
     void createBookIndex() {
         BookIndex bookIndex = new BookIndex(bookHome);
         bookIndex.scanBooksXml();
-        bookIndex.generateAllSectionsHtml("all_sections.html");
+        bookIndex.generateAllSectionsHtml(indexFile);
     }
 
     void extractTOC(String inputFilePdf) {
