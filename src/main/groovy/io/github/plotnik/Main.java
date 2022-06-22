@@ -87,11 +87,10 @@ public class Main implements Runnable {
         } catch (Exception e) {
             String msg = e.getMessage();
             if (e instanceof BookException) {
-                msg = ((BookException) e).getReason();
-            } else {
-                e.printStackTrace();
+                msg = ((BookException) e).getReason();          
             }
             out.println("[ERROR] " + msg);
+            e.printStackTrace();
         }
     }
 
