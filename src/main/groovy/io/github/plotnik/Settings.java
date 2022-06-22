@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static java.lang.System.*;
-import static io.github.plotnik.bookindex.verbose;
+import static io.github.plotnik.Main.verbose;
 
 /**
  * Файл с текущими настройками.

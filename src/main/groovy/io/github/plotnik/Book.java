@@ -8,6 +8,7 @@ public class Book {
     String title;
     String author;
     String source;
+    String folder;
 
     List links;
     List sections;
@@ -47,6 +48,14 @@ public class Book {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getFolder() {
+        return folder;
+    }
+
+    public void setFolder(String folder) {
+        this.folder = folder;
     }
 
     public List getLinks() {

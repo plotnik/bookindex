@@ -6,6 +6,8 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 
 import javax.swing.*;
 
+import groovy.xml.XmlSlurper;
+
 public class PdfExtractor {
 
     final boolean useSwingProgress = true;

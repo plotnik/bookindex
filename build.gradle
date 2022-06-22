@@ -3,9 +3,11 @@ apply plugin: 'groovy'
 //sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+/*
 if (!hasProperty('mainClass')) {
-    ext.mainClass = 'io.github.plotnik.bookindex'
+    ext.mainClass = 'io.github.plotnik.Main'
 }
+*/
 
 repositories {
     mavenCentral()
@@ -26,7 +28,7 @@ jar {
 
 task fatjar(type: Jar) {
     manifest {
-        attributes "Main-Class": "io.github.plotnik.bookindex"
+        attributes "Main-Class": "io.github.plotnik.Main"
     }
     baseName = "bookindex-all"
     from {
@@ -38,7 +40,7 @@ task fatjar(type: Jar) {
 
 
 dependencies {
-    implementation 'org.codehaus.groovy:groovy-all:3.0.9'
+    implementation 'org.apache.groovy:groovy-all:4.0.3'
     implementation 'org.apache.pdfbox:pdfbox:2.0.25'
     implementation 'info.picocli:picocli:4.6.2'
 

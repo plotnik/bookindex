@@ -34,13 +34,16 @@ import java.util.concurrent.Callable;
     },
     name = "bookindex", mixinStandardHelpOptions = true, version = "1.1",
     description = "Generate html index of my library that contains a lot of PDF books.")
-public class bookindex implements Runnable {
+public class Main implements Runnable {
 
     @Option(names = {"-p", "--props"}, description = "Name of property file.")
     String propertyFileName;
 
     @Option(names = {"-d", "--dashboard"}, description = "Open dashboard")
     boolean dashboard;
+
+    @Option(names = {"-b", "--books"}, description = "Books home folder")
+    String bookHome;
 
     @Option(names = {"-f", "--file"}, description = "Input PDF file")
     String inputFilePdf;
@@ -57,7 +60,7 @@ public class bookindex implements Runnable {
     Settings settings = new Settings();
 
     public static void main(String[] args) {
-        System.exit(new CommandLine(new bookindex()).execute(args));
+        System.exit(new CommandLine(new Main()).execute(args));
     }
 
     public void run() {
@@ -68,6 +71,10 @@ public class bookindex implements Runnable {
 
             if (dashboard) {
                 openDashboard();
+            }
+
+            if (bookHome != null) {
+                createBookIndex();
             }
 
             if (inputFilePdf != null) {
@@ -82,6 +89,12 @@ public class bookindex implements Runnable {
             out.println("[ERROR] " + msg);
             //e.printStackTrace();
         }
+    }
+
+    void createBookIndex() {
+        BookIndex bookIndex = new BookIndex(bookHome);
+        bookIndex.scanBooksXml();
+        bookIndex.generateAllSectionsHtml("all_sections.html");
     }
 
     void extractTOC(String inputFilePdf) {

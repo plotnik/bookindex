@@ -1,6 +1,7 @@
 package io.github.plotnik;
 
 import groovy.json.*;
+import groovy.xml.XmlSlurper;
 
 class GroovyUtils {
 

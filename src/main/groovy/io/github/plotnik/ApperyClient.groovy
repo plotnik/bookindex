@@ -12,7 +12,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import groovy.json.*;
-import groovy.util.XmlSlurper;
+import groovy.xml.XmlParser;
 import java.io.File;
 import java.util.List;
 import org.apache.http.entity.StringEntity;

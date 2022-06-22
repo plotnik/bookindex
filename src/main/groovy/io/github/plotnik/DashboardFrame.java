@@ -243,7 +243,7 @@ public class DashboardFrame extends javax.swing.JFrame {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 settings.setFolder(fchooser.getSelectedFile().getParent());
                 folderInput.setText(settings.getFolder());
-                bookindex.updateListModel(titleListModel, settings);
+                Main.updateListModel(titleListModel, settings);
                 titleList.clearSelection();
                 try {
                     settings.saveProperties();
