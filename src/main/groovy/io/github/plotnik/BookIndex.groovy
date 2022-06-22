@@ -172,12 +172,14 @@ public class BookIndex {
                            <body>
                            <font face="Georgia">
                            '''
-        // {{{ записать в html-файл заголовки секций
+
+        /* Записать в html-файл заголовки секций
+         */
         for (key in keys) {
             writer2.println "<a href='#${URLEncoder.encode(key)}'>$key</a> - "
         }
         writer2.println "<hr/>"
-        // }}}
+
         for (key in keys) {
             writer2.println """<a name='${URLEncoder.encode(key)}'></a>
                                <h3>$key</h3>
@@ -193,14 +195,15 @@ public class BookIndex {
                 otherSections.addAll(getOtherSections(allSections, bookInfo))
             }
             writer2.println "</ul>"
-            // {{{ вывести линки на другие секции для книг этой секции
+
+            /* Вывести линки на другие секции для книг этой секции
+             */
             otherSections.remove(key)
             writer2.println "<div class='other-sections'>"
             for (key2 in otherSections) {
                 writer2.println "+ <a href='#${URLEncoder.encode(key2)}'>$key2</a>"
             }
             writer2.println "</div>"
-            // }}}
         }
         writer2.println '''</font>
                            </body>
