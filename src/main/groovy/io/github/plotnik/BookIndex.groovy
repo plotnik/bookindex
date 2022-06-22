@@ -35,7 +35,7 @@ public class BookIndex {
     В словаре `allSections` каждая книга встречается только один раз и присоединена к своей главной секции.
     В словаре `allSections2` книга присоединена к каждой своей секции.
     */
-    Map<String, List<Book>> allSections = new HashMap<>()  // уникальное соответствие книг секциям
+    //Map<String, List<Book>> allSections = new HashMap<>()  // уникальное соответствие книг секциям
     Map<String, List<Book>> allSections2 = new HashMap<>() // дубликатное соответствие книг секциям
 
 
@@ -107,7 +107,7 @@ public class BookIndex {
                         bookInfo.folder = dirName
 
                         // отметиться в уникальном соответствии книг секциям allSections
-                        addBookForSection(allSections, bookInfo, section['@name'])
+                        //addBookForSection(allSections, bookInfo, section['@name'])
 
                         // отметиться в дубликатном соответствии книг секциям allSections2
                         addBookForSection(allSections2, bookInfo, section['@name'])
