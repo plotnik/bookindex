@@ -96,11 +96,11 @@ public class Settings {
             FileInputStream fin = new FileInputStream(f.getPath());
             pp.load(fin);
             fin.close();
-        }
 
-        setFolder(getSetting("folder"));
-        apperyDbId = getSetting("appery_db_id");
-        apperyMasterKey = getSetting("appery_master_key");
+            setFolder(getSetting("folder"));
+            apperyDbId = getSetting("appery_db_id");
+            apperyMasterKey = getSetting("appery_master_key");
+        }
 
         if (verbose) {
             out.println("Using properties: " + propName);

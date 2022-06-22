@@ -68,11 +68,10 @@ public class Main implements Runnable {
 
     public void run() {
         try {
-            /* Загрузить файл с текущими настройками.
-             */
-            settings.loadProperties(propertyFileName);
-
             if (dashboard) {
+                /* Загрузить файл с текущими настройками.
+                */
+                settings.loadProperties(propertyFileName);
                 openDashboard();
             }
 
@@ -87,7 +86,7 @@ public class Main implements Runnable {
         } catch (Exception e) {
             String msg = e.getMessage();
             if (e instanceof BookException) {
-                msg = ((BookException) e).getReason();          
+                msg = ((BookException) e).getReason();
             }
             out.println("[ERROR] " + msg);
             e.printStackTrace();
