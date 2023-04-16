@@ -27,6 +27,7 @@ jar {
 }*/
 
 task fatjar(type: Jar) {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     manifest {
         attributes "Main-Class": "io.github.plotnik.Main"
     }
