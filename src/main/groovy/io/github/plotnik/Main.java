@@ -39,7 +39,7 @@ import java.util.concurrent.Callable;
 public class Main implements Callable<Integer> {
 
     @Parameters(index = "0", description = "Books home folder",
-                defaultValue = "~/books")
+                defaultValue = ".")
     String bookHome;
     
     @Option(names = {"-d", "--depth"}, description = "Depth of book folders.",
@@ -119,9 +119,9 @@ public class Main implements Callable<Integer> {
     }
 
     void createBookIndex() throws FileNotFoundException {
-        BookIndex bookIndex = new BookIndex(bookHome, bookFolderDepth, verbose);
+        BookIndex bookIndex = new BookIndex(bookHome, bookFolderDepth, indexFile, verbose);
         bookIndex.scanBooksXml();
-        bookIndex.generateAllSectionsHtml(indexFile);
+        bookIndex.generateAllSectionsHtml();
     }
 
     void extractTOC(String inputFilePdf) {

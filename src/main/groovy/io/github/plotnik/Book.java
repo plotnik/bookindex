@@ -1,5 +1,6 @@
 package io.github.plotnik;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Book {
@@ -10,13 +11,16 @@ public class Book {
     String source;
     String folder;
 
-    List links;
-    List sections;
+    List<String> links = new ArrayList<>();
+    List<String> sections = new ArrayList<>();
 
-    String mstamp;
-    String img;
+    String obsidian;
 
-    String toc;
+    @Override
+    public String toString() {
+        return "Book [name=" + name + ", title=" + title + ", author=" + author + ", source=" + source + ", folder="
+                + folder + ", links=" + links + ", sections=" + sections + ", obsidian=" + obsidian + "]";
+    }
 
     public String getName() {
         return name;
@@ -58,44 +62,27 @@ public class Book {
         this.folder = folder;
     }
 
-    public List getLinks() {
+    public List<String> getLinks() {
         return links;
     }
 
-    public void setLinks(List links) {
+    public void setLinks(List<String> links) {
         this.links = links;
     }
 
-    public List getSections() {
+    public List<String> getSections() {
         return sections;
     }
 
-    public void setSections(List sections) {
+    public void setSections(List<String> sections) {
         this.sections = sections;
     }
-
-    public String getMstamp() {
-        return mstamp;
+    
+    public String getObsidian() {
+        return obsidian;
     }
 
-    public void setMstamp(String mstamp) {
-        this.mstamp = mstamp;
+    public void setObsidian(String obsidian) {
+        this.obsidian = obsidian;
     }
-
-    public String getImg() {
-        return img;
-    }
-
-    public void setImg(String img) {
-        this.img = img;
-    }
-
-    public String getToc() {
-        return toc;
-    }
-
-    public void setToc(String toc) {
-        this.toc = toc;
-    }
-
 }

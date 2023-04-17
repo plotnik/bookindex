@@ -6,9 +6,9 @@ public class BookIndex {
 
     String bookHome;
     int bookFolderDepth;
+    String indexName;
     boolean verbose;
-
-    String[] ignoreFolders = ['bookindex','code'];
+    XmlParser xmlParser = new XmlParser();
 
     /** Пути к найденным файлам `books.xml` */
     List<String> xmlNames = [];
@@ -42,10 +42,13 @@ public class BookIndex {
     //Map<String, List<Book>> allSections = new HashMap<>()  // уникальное соответствие книг секциям
     Map<String, List<Book>> allSections2 = new HashMap<>() // дубликатное соответствие книг секциям
 
+    List<Book> allBooks;
 
-    BookIndex(String bookHome, int bookFolderDepth, boolean verbose) {
+    BookIndex(String bookHome, int bookFolderDepth, String indexName, boolean verbose) {
         this.bookHome = bookHome;
         this.bookFolderDepth = bookFolderDepth;
+        this.indexName = indexName;
+        this.verbose = verbose;
     }
 
     void scanBooksXml() throws FileNotFoundException {
@@ -66,17 +69,15 @@ public class BookIndex {
         /* Основной цикл, в котором мы проходим подряд все файлы "books.xml"
            и печатаем их сигнатуры в консоли.
          */
-        for (String xmlName in xmlNames) {
+        for (int n=0; n<xmlNames.size(); n++) {
+            String xmlName = xmlNames.get(n);
             // извлекаем из пути к дескриптору "books.xml" сигнатуру месяца
             String dirPath = xmlName[0..-1-'/books.xml'.length()]
             String dirName = dirPath[-5..-1]  // сигнатура месяца
-            print "[$dirName]"
-            if (verbose) {
-                println ""
-            }
+            allBooks = new ArrayList<>();
+            println "[$dirName]"
 
-
-            def document = new XmlParser().parse(new FileReader(xmlName))
+            def document = xmlParser.parse(new FileReader(xmlName))
             def sections = document.section
             sections.each { section ->
                 if (verbose) {
@@ -95,33 +96,54 @@ public class BookIndex {
 
                     /* Создать book info
                      */
-                    Book bookInfo = new Book()
-                    bookInfo.name = book['@title']
-                    bookInfo.author = book['@author']
-                    bookInfo.source = book['@source']
-                    bookInfo.folder = dirName
+                    Book b = new Book()
+                    b.name = book['@name']
+                    b.title = book['@title']
+                    b.author = book['@author']
+                    b.source = book['@source']
+                    b.folder = dirName
 
-                    // отметиться в уникальном соответствии книг секциям allSections
-                    //addBookForSection(allSections, bookInfo, section['@name'])
+                    b.obsidian = MonthTemplate.getObsidianLink(dirPath, b.source)
+
+                    book.a.each {
+                        b.links.add(it['@href'])
+                    }
+
+                    if (b.obsidian != null) {
+                        b.links.add(b.obsidian)
+                    }
+
+                    // добавить книгу в общий список
+                    allBooks.add(b)
 
                     // отметиться в дубликатном соответствии книг секциям allSections2
-                    addBookForSection(allSections2, bookInfo, section['@name'])
+                    addBookForSection(allSections2, b, section['@name'])
                     def moreSections = book.section
                     moreSections.each { sect ->
-                        addBookForSection(allSections2, bookInfo, sect['@name'])
+                        addBookForSection(allSections2, b, sect['@name'])
+                    }
+                    if (b.obsidian != null) {
+                        addBookForSection(allSections2, b, "Obsidian")
                     }
                 }
             }
             pdfChecker.verifyAllPdfsAdded(dirPath, dirName)
+              
+            // сгенерировать html-файл для текущего месяца 
+            String nextXmlName = (n==0)? null : xmlNames.get(n-1); 
+            String prevXmlName = (n==xmlNames.size()-1)? null : xmlNames.get(n+1); 
+            MonthTemplate monthTemplate = new MonthTemplate(
+                dirPath, dirName, bookFolderDepth, 
+                indexName, allBooks, 
+                prevXmlName, nextXmlName)
+            monthTemplate.createHtml()
         }
-        // завершаем вывод папок в одну строку
-        println ""
     }
 
     void scanDirList(File[] dirs, int depth) {
         for (File dir in dirs) {
             if (!dir.isDirectory()) continue;
-            if (ignoreFolders.contains(dir.name)) continue;
+            if (dir.name.startsWith("-")) continue;
             if (depth == 1) {
                 addBooksXml(dir);
             } else {
@@ -140,13 +162,14 @@ public class BookIndex {
      В словаре `allSections` присоединяет информацию о книге `bookInfo`
      к секции `sectionName`.
      */
-    void addBookForSection(allSections, bookInfo, sectionName) {
+    void addBookForSection(Map<String, List<Book>> allSections, Book book, String sectionName) {
         def bookList = allSections.get(sectionName)
         if (bookList==null) {
             bookList = new LinkedList()
             allSections.put(sectionName, bookList)
         }
-        bookList.add(bookInfo)
+        bookList.add(book)
+        book.sections.add(sectionName)
     }
 
     /** Remove file extension */
@@ -155,16 +178,18 @@ public class BookIndex {
         return fname.substring(0,k+1)
     }
 
-    void generateAllSectionsHtml(String indexName) {
+    void generateAllSectionsHtml() {
         // allSections содержит уникальное соответствие книг секциям
         // allSections2 содержит дубликатное соответствие книг секциям
-        generateAllSectionsHtml(indexName, allSections2)
+        generateAllSectionsHtml(allSections2)
     }
 
     /**
      * Generates "all_sections.html" file aka "Book Index"
      */
-    def generateAllSectionsHtml(String indexName, Map<String, List<Book>> allSections) {
+    def generateAllSectionsHtml(Map<String, List<Book>> allSections) {
+        String bootstrapCDN = MonthTemplate.bootstrapCDN;
+
         def keys = new ArrayList(allSections.keySet())
         keys.sort { it.toLowerCase() }
 
@@ -172,40 +197,48 @@ public class BookIndex {
         keys.removeAll(excludedSections)
 
         def writer2 = new FileWriter(indexName)
-        writer2.println '''<html>
-                           <head>
-                             <meta charset="UTF-8">
-                             <title>Book Index</title>
-                             <style>
-                             .other-sections {
-                               padding-left: 40px;
-                               font-size: small;
-                             }
-                             </style>
-                           </head>
-                           <body>
-                           <font face="Georgia">
-                           '''
+        writer2.println """
+            <!doctype html>
+            <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>Book Index</title>
+                <link href="${bootstrapCDN}/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    .other-sections {
+                        padding-left: 40px;
+                        font-size: small;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+            """.stripIndent()
 
         /* Записать в html-файл заголовки секций
          */
+        writer2.println '<div class="alert alert-primary" role="alert">'
+
         for (key in keys) {
             writer2.println "<a href='#${URLEncoder.encode(key)}'>$key</a> - "
         }
-        writer2.println "<hr/>"
+        writer2.println "</div>"
 
         for (key in keys) {
-            writer2.println """<a name='${URLEncoder.encode(key)}'></a>
-                               <h3>$key</h3>
-                               <ul>"""
+            writer2.println """
+                <a name='${URLEncoder.encode(key)}'></a>
+                <h6><strong>$key</strong></h6>
+                <ul>
+                """.stripIndent()
             def bookList = allSections.get(key)
             def otherSections = new HashSet()
             for (bookInfo in bookList) {
                 // собрать строку для html файла
-                String folderLink = '../'+bookInfo.folder // 'file:///'+bookInfo.addr.substring(0, bookInfo.addr.lastIndexOf("/"))
+                String folderLink = bookHome + '/' + bookInfo.folder
                 writer2 << "<li> <a href='${folderLink}/books.html'><code>${bookInfo.folder}</code></a> "+
                            "<i>${bookInfo.author}</i> "+
-                           "<a href='${folderLink}/${bookInfo.source}.mm.html'>\"${bookInfo.name}\"</a> </li>\n"
+                           "<a href='${folderLink}/books.html#${bookInfo.source}'>\"${bookInfo.title}\"</a> </li>\n"
                 otherSections.addAll(getOtherSections(allSections, bookInfo))
             }
             writer2.println "</ul>"
@@ -215,13 +248,18 @@ public class BookIndex {
             otherSections.remove(key)
             writer2.println "<div class='other-sections'>"
             for (key2 in otherSections) {
-                writer2.println "+ <a href='#${URLEncoder.encode(key2)}'>$key2</a>"
+                writer2.println "+ <a class='badge text-bg-light' href='#${URLEncoder.encode(key2)}'>$key2</a>"
             }
             writer2.println "</div>"
+            writer2.println "<hr/>"
         }
-        writer2.println '''</font>
-                           </body>
-                           </html>'''
+        writer2.println """  
+            </div> <!-- container -->              
+            <script src="${bootstrapCDN}/dist/js/bootstrap.bundle.min.js"></script>
+            </body>
+            </html>
+            """.stripIndent()
+
         writer2.close()
         println "Book Index created: " + indexName
     }
