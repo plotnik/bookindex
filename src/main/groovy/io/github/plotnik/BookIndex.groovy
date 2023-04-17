@@ -1,8 +1,12 @@
 package io.github.plotnik;
 
+import groovy.xml.*
+
 public class BookIndex {
 
     String bookHome;
+    int bookFolderDepth;
+    boolean verbose;
 
     String[] ignoreFolders = ['bookindex','code'];
 
@@ -18,7 +22,7 @@ public class BookIndex {
     /** Номер строки в файле по имени книги */
     Map<String, Integer> lineno = new HashMap<>();
 
-    PDFChecker pdfChecker = new PDFChecker();
+    PdfChecker pdfChecker = new PdfChecker();
 
     /**
     Структура словаря `allSections`
@@ -39,22 +43,23 @@ public class BookIndex {
     Map<String, List<Book>> allSections2 = new HashMap<>() // дубликатное соответствие книг секциям
 
 
-    BookIndex(String bookHome) {
+    BookIndex(String bookHome, int bookFolderDepth, boolean verbose) {
         this.bookHome = bookHome;
+        this.bookFolderDepth = bookFolderDepth;
     }
 
-    void scanBooksXml() {
+    void scanBooksXml() throws FileNotFoundException {
 
         /* Собрать имена файлов "books.xml", пропуская `ignoreFolders`.
            Отсортировать их в обратном порядке, чтобы более новые папки
            индексировались первыми.
          */
-        File[] dirs = new File(bookHome).listFiles()
-        for (File dir in dirs) {
-            if (!dir.isDirectory()) continue;
-            if (ignoreFolders.contains(dir.name)) continue;
-            String xmlName = dir.getPath()+'/books.xml'
-            xmlNames << xmlName
+        File home = new File(bookHome); 
+        if (bookFolderDepth == 0) {
+            addBooksXml(home);
+        } else {
+            File[] dirs = home.listFiles();
+            scanDirList(dirs, bookFolderDepth);
         }
         xmlNames.sort { a,b -> -a.compareTo(b) }
 
@@ -66,60 +71,69 @@ public class BookIndex {
             String dirPath = xmlName[0..-1-'/books.xml'.length()]
             String dirName = dirPath[-5..-1]  // сигнатура месяца
             print "[$dirName]"
+            if (verbose) {
+                println ""
+            }
 
 
-            def document = groovy.xml.DOMBuilder.parse(new File(xmlName).newReader('utf-8'))
-            def rootElement = document.documentElement
-            use(groovy.xml.dom.DOMCategory) {
-                def sections = rootElement.section
-                sections.each { section ->
-                    //println "section: ${section['@name']}"
-                    def books = section.book
-                    books.each { book ->
-                        String addr = dirPath+'/'+book['@name']
-                        //println "  "+book['@name']
-                        names << book['@title']
-                        address.put(book['@title'], addr)
-                        lineno.put(book['@title'], dirPath)
-                        pdfChecker.addName(book['@name'])
+            def document = new XmlParser().parse(new FileReader(xmlName))
+            def sections = document.section
+            sections.each { section ->
+                if (verbose) {
+                    println "section: ${section['@name']}"
+                }
+                def books = section.book
+                books.each { book ->
+                    String addr = dirPath+'/'+book['@name']
+                    if (verbose) {
+                        println "  "+book['@name']
+                    }
+                    names << book['@title']
+                    address.put(book['@title'], addr)
+                    lineno.put(book['@title'], dirPath)
+                    pdfChecker.addName(book['@name'])
 
-                        /* Проверить наличие мобильного формата
-                        Set formats = new HashSet()
-                        def mobiles = book.mobile
-                        mobiles.each { mobile ->
-                            formats.add(mobile['@fmt']);
-                        }
-                        // if (formats.size()>0) println "formats=$formats"
-                        String bookFile = book['@name']
-                        String onlyName = nameOnly(bookFile)
-                        //println "bookFile=$bookFile, onlyName=$onlyName"
-                        if (mobileFiles.contains(onlyName) && !formats.contains(mobileExt[onlyName])) {
-                            println "  mobile format not mentioned in books.xml: "+bookFile
-                        }
-                        */
+                    /* Создать book info
+                     */
+                    Book bookInfo = new Book()
+                    bookInfo.name = book['@title']
+                    bookInfo.author = book['@author']
+                    bookInfo.source = book['@source']
+                    bookInfo.folder = dirName
 
-                        /* Создать book info
-                         */
-                        Book bookInfo = new Book()
-                        bookInfo.name = book['@title']
-                        bookInfo.author = book['@author']
-                        bookInfo.source = book['@source']
-                        bookInfo.folder = dirName
+                    // отметиться в уникальном соответствии книг секциям allSections
+                    //addBookForSection(allSections, bookInfo, section['@name'])
 
-                        // отметиться в уникальном соответствии книг секциям allSections
-                        //addBookForSection(allSections, bookInfo, section['@name'])
-
-                        // отметиться в дубликатном соответствии книг секциям allSections2
-                        addBookForSection(allSections2, bookInfo, section['@name'])
-                        def moreSections = book.section
-                        moreSections.each { sect ->
-                            addBookForSection(allSections2, bookInfo, sect['@name'])
-                        }
+                    // отметиться в дубликатном соответствии книг секциям allSections2
+                    addBookForSection(allSections2, bookInfo, section['@name'])
+                    def moreSections = book.section
+                    moreSections.each { sect ->
+                        addBookForSection(allSections2, bookInfo, sect['@name'])
                     }
                 }
             }
             pdfChecker.verifyAllPdfsAdded(dirPath, dirName)
         }
+        // завершаем вывод папок в одну строку
+        println ""
+    }
+
+    void scanDirList(File[] dirs, int depth) {
+        for (File dir in dirs) {
+            if (!dir.isDirectory()) continue;
+            if (ignoreFolders.contains(dir.name)) continue;
+            if (depth == 1) {
+                addBooksXml(dir);
+            } else {
+                File[] dirs2 = dir.listFiles();
+                scanDirList(dirs2, depth - 1);
+            }
+        }
+    }
+
+    void addBooksXml(File dir) {
+        String xmlName = dir.getPath()+'/books.xml'
+        xmlNames << xmlName
     }
 
     /**
@@ -209,6 +223,7 @@ public class BookIndex {
                            </body>
                            </html>'''
         writer2.close()
+        println "Book Index created: " + indexName
     }
 
     def getOtherSections(allSections, bookInfo) {

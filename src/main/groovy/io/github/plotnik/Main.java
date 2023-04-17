@@ -1,5 +1,6 @@
 package io.github.plotnik;
 
+import static java.lang.System.err;
 import static java.lang.System.out;
 
 import javax.swing.DefaultListModel;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import picocli.CommandLine;
 import static picocli.CommandLine.*;
@@ -34,16 +36,21 @@ import java.util.concurrent.Callable;
     },
     name = "bookindex", mixinStandardHelpOptions = true, version = "1.1",
     description = "Generate html index of my library that contains a lot of PDF books.")
-public class Main implements Runnable {
+public class Main implements Callable<Integer> {
+
+    @Parameters(index = "0", description = "Books home folder",
+                defaultValue = "~/books")
+    String bookHome;
+    
+    @Option(names = {"-d", "--depth"}, description = "Depth of book folders.",
+            defaultValue = "2")
+    int bookFolderDepth;
 
     @Option(names = {"-p", "--props"}, description = "Name of property file.")
     String propertyFileName;
 
-    @Option(names = {"-d", "--dashboard"}, description = "Open dashboard")
+    @Option(names = {"-g", "--gui-dashboard"}, description = "Open GUI dashboard")
     boolean dashboard;
-
-    @Option(names = {"-b", "--books"}, description = "Books home folder")
-    String bookHome;
 
     @Option(names = {"-i", "--index"}, description = "Index output file", defaultValue="all_sections.html")
     String indexFile;
@@ -66,7 +73,8 @@ public class Main implements Runnable {
         System.exit(new CommandLine(new Main()).execute(args));
     }
 
-    public void run() {
+    @Override
+    public Integer call() {
         try {
             if (dashboard) {
                 /* Загрузить файл с текущими настройками.
@@ -75,13 +83,27 @@ public class Main implements Runnable {
                 openDashboard();
             }
 
-            if (bookHome != null) {
-                createBookIndex();
+            if (bookHome.startsWith("~/")) {
+                bookHome = System.getProperty("user.home") + bookHome.substring(1);
             }
 
             if (inputFilePdf != null) {
                 extractTOC(inputFilePdf);
+                return 0;
             }
+
+            if (bookFolderDepth < 0) {
+                err.println("[ERROR] Depth of book folders should not be a negative number");
+                return 1;
+            }
+
+            try {
+                createBookIndex();
+            } catch(FileNotFoundException e) {
+                err.println("\n[ERROR] " + e.getMessage());
+                return 1;
+            }
+
 
         } catch (Exception e) {
             String msg = e.getMessage();
@@ -90,11 +112,14 @@ public class Main implements Runnable {
             }
             out.println("[ERROR] " + msg);
             e.printStackTrace();
+            return 1;
         }
+
+        return 0;
     }
 
-    void createBookIndex() {
-        BookIndex bookIndex = new BookIndex(bookHome);
+    void createBookIndex() throws FileNotFoundException {
+        BookIndex bookIndex = new BookIndex(bookHome, bookFolderDepth, verbose);
         bookIndex.scanBooksXml();
         bookIndex.generateAllSectionsHtml(indexFile);
     }

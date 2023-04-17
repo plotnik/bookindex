@@ -4,7 +4,7 @@ package io.github.plotnik;
  * Проверить, что все PDF файлы в папке присутствуют в дескрипторе.
  * Учитываем только папки с определенной даты.
  */
-public class PDFChecker {
+public class PdfChecker {
 
 	List<String> names = []
 	String startDir = '14-01'
