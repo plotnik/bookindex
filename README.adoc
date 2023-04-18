@@ -13,16 +13,22 @@
    888 d88P Y88..88P Y88..88P 888 "88b 888 888  888 Y88b 888 Y8b.     .d8""8b.
    88888P"   "Y88P"   "Y88P"  888  888 888 888  888  "Y88888  "Y8888  888  888
 
-Usage: bookindex [-dhvV] [-f=<inputFilePdf>] [-p=<propertyFileName>]
+Usage: bookindex [-ghosvV] [-d=<bookFolderDepth>] [-f=<inputFilePdf>]
+                 [-i=<indexFile>] [-p=<propertyFileName>] <bookHome>
 Generate html index of my library that contains a lot of PDF books.
-  -d, --dashboard   Open dashboard
-  -f, --file=<inputFilePdf>
-                    Input PDF file
-  -h, --help        Show this help message and exit.
+      <bookHome>            Books home folder
+  -d, --depth=<bookFolderDepth>
+                            Depth of book folders.
+  -f, --file=<inputFilePdf> Input PDF file
+  -g, --gui-dashboard       Open GUI dashboard
+  -h, --help                Show this help message and exit.
+  -i, --index=<indexFile>   Index output file
+  -o, --obsidian            Show Obsidian books
   -p, --props=<propertyFileName>
-                    Name of property file.
-  -v, --verbose     Verbose output
-  -V, --version     Print version information and exit.
+                            Name of property file.
+  -s, --safe                Ask for confirmations when rewriting generated files
+  -v, --verbose             Verbose output
+  -V, --version             Print version information and exit.
 ----
 
 == Property file

@@ -7,6 +7,7 @@ public class BookIndex {
     String bookHome;
     int bookFolderDepth;
     String indexName;
+    boolean obsidianOnly;
     boolean verbose;
 
     XmlParser xmlParser = new XmlParser();
@@ -43,12 +44,26 @@ public class BookIndex {
     //Map<String, List<Book>> allSections = new HashMap<>()  // уникальное соответствие книг секциям
     Map<String, List<Book>> allSections2 = new HashMap<>() // дубликатное соответствие книг секциям
 
-    List<Book> allBooks;
+    /**
+     `allBooks` содержит книги за последний обработанный месяц
+     */
+    List<Book> allBooks = new ArrayList<>();
 
-    BookIndex(String bookHome, int bookFolderDepth, String indexName, boolean verbose) {
+    /**
+     `allBooks2` содержит все книги библиотеки
+     */
+    List<Book> allBooks2 = new ArrayList<>();
+
+
+    BookIndex(String bookHome, 
+              int bookFolderDepth, 
+              String indexName,
+              boolean obsidianOnly, 
+              boolean verbose) {
         this.bookHome = bookHome;
         this.bookFolderDepth = bookFolderDepth;
         this.indexName = indexName;
+        this.obsidianOnly = obsidianOnly;
         this.verbose = verbose;
     }
 
@@ -77,6 +92,8 @@ public class BookIndex {
             // извлекаем из пути к дескриптору "books.xml" сигнатуру месяца
             String dirPath = xmlName[0..-1-'/books.xml'.length()]
             String dirName = dirPath[-5..-1]  // сигнатура месяца
+            
+            allBooks2.addAll(allBooks);
             allBooks = new ArrayList<>();
             print "[$dirName]"
             if (verbose) {
@@ -134,17 +151,19 @@ public class BookIndex {
                     }
                 }
             }
-            pdfChecker.verifyAllPdfsAdded(dirPath, dirName)
-              
-            // сгенерировать html-файл для текущего месяца 
-            String nextXmlName = (n==0)? null : xmlNames.get(n-1); 
-            String prevXmlName = (n==xmlNames.size()-1)? null : xmlNames.get(n+1); 
-            MonthTemplate monthTemplate = new MonthTemplate(
-                dirPath, dirName, bookFolderDepth, 
-                indexName, allBooks, 
-                prevXmlName, nextXmlName)
-            if (monthTemplate.createHtml()) {
-                pagesUpdated++
+            if (!obsidianOnly) {
+                pdfChecker.verifyAllPdfsAdded(dirPath, dirName)
+                
+                // сгенерировать html-файл для текущего месяца 
+                String nextXmlName = (n==0)? null : xmlNames.get(n-1); 
+                String prevXmlName = (n==xmlNames.size()-1)? null : xmlNames.get(n+1); 
+                MonthTemplate monthTemplate = new MonthTemplate(
+                    dirPath, dirName, bookFolderDepth, 
+                    indexName, allBooks, 
+                    prevXmlName, nextXmlName)
+                if (monthTemplate.createHtml()) {
+                    pagesUpdated++
+                }
             }
         }
         println "\n-----------------"
@@ -187,6 +206,19 @@ public class BookIndex {
     String nameOnly(String fname) {
         int k = fname.lastIndexOf('.')
         return fname.substring(0,k+1)
+    }
+
+    void showObsidian() {
+        println "Find Obsidian books:"
+        int ocount = 0;
+        for (Book b: allBooks2) {
+            if (b.obsidian != null) {
+                println "- ${b.path}/${b.obsidian}"
+                ocount++
+            }
+        }
+        println "-----------------"
+        println "Books in library: Total: " + allBooks2.size() + " / Obsidian: " + ocount
     }
 
     boolean generateAllSectionsHtml() {

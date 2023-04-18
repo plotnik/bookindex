@@ -64,14 +64,15 @@ public class Main implements Callable<Integer> {
     @Option(names = {"-v", "--verbose"}, description = "Verbose output")
     static boolean verbose;
 
+    @Option(names = {"-o", "--obsidian"}, description = "Show Obsidian books")
+    static boolean obsidianOnly;
+
 
     Object lock = new Object();
 
     Settings settings = new Settings();
 
-    public static void main(String[] args) {
-        System.exit(new CommandLine(new Main()).execute(args));
-    }
+    BookIndex bookIndex;
 
     @Override
     public Integer call() {
@@ -97,8 +98,21 @@ public class Main implements Callable<Integer> {
                 return 1;
             }
 
+            bookIndex = new BookIndex(bookHome, bookFolderDepth, indexFile, 
+                                      obsidianOnly, verbose);
+
             try {
-                createBookIndex();
+                bookIndex.scanBooksXml();
+
+                if (obsidianOnly) {
+                    bookIndex.showObsidian();
+                    return 0;
+                }
+
+                if (bookIndex.generateAllSectionsHtml()) {
+                    out.println("Book Index created: " + indexFile);
+                }
+
             } catch(FileNotFoundException e) {
                 err.println("\n[ERROR] " + e.getMessage());
                 return 1;
@@ -116,14 +130,6 @@ public class Main implements Callable<Integer> {
         }
 
         return 0;
-    }
-
-    void createBookIndex() throws FileNotFoundException {
-        BookIndex bookIndex = new BookIndex(bookHome, bookFolderDepth, indexFile, verbose);
-        bookIndex.scanBooksXml();
-        if (bookIndex.generateAllSectionsHtml()) {
-            out.println("Book Index created: " + indexFile);
-        }
     }
 
     void extractTOC(String inputFilePdf) {
@@ -221,6 +227,10 @@ public class Main implements Callable<Integer> {
             out.println("[JsonProcessingException] " + e.getMessage());
         }
         */
+    }
+    
+    public static void main(String[] args) {
+        System.exit(new CommandLine(new Main()).execute(args));
     }
 
 }

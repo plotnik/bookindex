@@ -28,7 +28,7 @@ public class StrUtils {
 
     public static boolean saveIfNeeded(String fname, String text) {
         try {
-            String oldText = Files.readString(Path.of(fname));
+            String oldText = loadStr("", fname);
             if (text.equals(oldText)) {
                 return false;
             }
