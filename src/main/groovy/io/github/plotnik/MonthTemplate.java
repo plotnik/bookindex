@@ -36,7 +36,7 @@ public class MonthTemplate {
         this.indexPath = Paths.get(indexName).toUri().toString();
  
         StringBuilder sb = new StringBuilder();
-        for (int i=0; i<=bookFolderDepth; i++) {
+        for (int i=0; i<bookFolderDepth; i++) {
             sb.append("../");
         }
         depthPrefix = sb.toString();

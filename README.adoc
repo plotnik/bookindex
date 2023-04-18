@@ -1,4 +1,4 @@
-= Generate html index of my library that contains a lot of PDF books
+= Generate html index of my library with PDF books on programming
 :icons: font
 
 == Usage
@@ -13,23 +13,89 @@
    888 d88P Y88..88P Y88..88P 888 "88b 888 888  888 Y88b 888 Y8b.     .d8""8b.
    88888P"   "Y88P"   "Y88P"  888  888 888 888  888  "Y88888  "Y8888  888  888
 
-Usage: bookindex [-ghosvV] [-d=<bookFolderDepth>] [-f=<inputFilePdf>]
+Usage: bookindex [-ghovV] [-d=<bookFolderDepth>] [-f=<inputFilePdf>]
                  [-i=<indexFile>] [-p=<propertyFileName>] <bookHome>
-Generate html index of my library that contains a lot of PDF books.
+Generate html index of my library with PDF books on programming.
       <bookHome>            Books home folder
   -d, --depth=<bookFolderDepth>
                             Depth of book folders.
-  -f, --file=<inputFilePdf> Input PDF file
+  -f, --file=<inputFilePdf> PDF file to extract TOC as mindmap
   -g, --gui-dashboard       Open GUI dashboard
   -h, --help                Show this help message and exit.
   -i, --index=<indexFile>   Index output file
   -o, --obsidian            Show Obsidian books
   -p, --props=<propertyFileName>
                             Name of property file.
-  -s, --safe                Ask for confirmations when rewriting generated files
   -v, --verbose             Verbose output
   -V, --version             Print version information and exit.
 ----
+
+== Folder structure
+
+Folder with PDF books can follow this structure:
+
+====
+----
+.
+└── 2023                          <1>
+    ├── 23-01                     <2>
+    │   ├── android_games_code    <3>
+    │   ├── epub                  <4>
+    │   └── img                   <5>
+    ├── 23-02
+    │   ├── epub
+    │   ├── img
+    │   └── java17_code
+    ├── 23-03
+    │   ├── epub
+    │   └── img
+    └── 23-04
+        ├── epub
+        ├── img
+        └── micronaut_code
+----
+====
+
+<1> Separate folders for each year.
+<2> Separate folders for each month. Each month folder should contain <<XML file `books.xml`>> described below.
+<3> Files for each book can be stored in `<source>_code` where `<source>` is the value of appropriate attribute in `books.xml`
+<4> EPUB files can be placed here if available
+<5> Images of book covers are here, they should be named as `<pdf_file_name>.jpg`
+
+== XML file `books.xml`
+
+====
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<books>
+
+<!--
+<section name="Java">                  <1>
+    <book
+      name=""                          <2>
+      title=""                         <3>
+      author=""                        <4>
+      source="">                       <5>
+        <a href="" />                  <6>
+        <mobile fmt="epub"/>           <7>
+        <section name="Angular"/>      <8>
+  </book>
+    
+</section>
+-->
+
+</books>
+```
+====
+
+<1> Book should have at least one section assigned to it. There can be many books in one section.
+<2> PDF file name
+<3> Book title
+<4> Book author(s)
+<5> Code assigned to this book, should be unique in this folder.
+<6> The book should have at least one URL assigned to it.
+<7> Can be added if mobile formats are available in `epub` folder
+<8> Optional additional sections can be added to the book.
 
 == Property file
 

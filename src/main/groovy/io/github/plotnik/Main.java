@@ -35,7 +35,7 @@ import java.util.concurrent.Callable;
     ""
     },
     name = "bookindex", mixinStandardHelpOptions = true, version = "1.1",
-    description = "Generate html index of my library that contains a lot of PDF books.")
+    description = "Generate html index of my library with PDF books on programming.")
 public class Main implements Callable<Integer> {
 
     @Parameters(index = "0", description = "Books home folder",
@@ -55,11 +55,8 @@ public class Main implements Callable<Integer> {
     @Option(names = {"-i", "--index"}, description = "Index output file", defaultValue="all_sections.html")
     String indexFile;
 
-    @Option(names = {"-f", "--file"}, description = "Input PDF file")
+    @Option(names = {"-f", "--file"}, description = "PDF file to extract TOC as mindmap")
     String inputFilePdf;
-
-    @Option(names = {"-s", "--safe"}, description = "Ask for confirmations when rewriting generated files")
-    static boolean safeMode;
 
     @Option(names = {"-v", "--verbose"}, description = "Verbose output")
     static boolean verbose;
@@ -136,7 +133,7 @@ public class Main implements Callable<Integer> {
         Console console = new Console();
         console.setTitle("bookindex");
         console.setVisible(true);
-        PdfExtractor pe = new PdfExtractor(console, safeMode);
+        PdfExtractor pe = new PdfExtractor(console, true);
         try {
             int result = pe.process(inputFilePdf);
             console.log("\n== Result: " + (result==0? "SUCCESS":"ERROR"));
