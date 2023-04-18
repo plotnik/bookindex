@@ -8,6 +8,7 @@ public class BookIndex {
     int bookFolderDepth;
     String indexName;
     boolean verbose;
+
     XmlParser xmlParser = new XmlParser();
 
     /** Пути к найденным файлам `books.xml` */
@@ -69,13 +70,18 @@ public class BookIndex {
         /* Основной цикл, в котором мы проходим подряд все файлы "books.xml"
            и печатаем их сигнатуры в консоли.
          */
+        println "Updating html pages for each month:"
+        int pagesUpdated = 0 
         for (int n=0; n<xmlNames.size(); n++) {
             String xmlName = xmlNames.get(n);
             // извлекаем из пути к дескриптору "books.xml" сигнатуру месяца
             String dirPath = xmlName[0..-1-'/books.xml'.length()]
             String dirName = dirPath[-5..-1]  // сигнатура месяца
             allBooks = new ArrayList<>();
-            println "[$dirName]"
+            print "[$dirName]"
+            if (verbose) {
+                println ""
+            }
 
             def document = xmlParser.parse(new FileReader(xmlName))
             def sections = document.section
@@ -102,8 +108,9 @@ public class BookIndex {
                     b.author = book['@author']
                     b.source = book['@source']
                     b.folder = dirName
+                    b.path = dirPath
 
-                    b.obsidian = MonthTemplate.getObsidianLink(dirPath, b.source)
+                    b.obsidian = StrUtils.getObsidianLink(dirPath, b.source)
 
                     book.a.each {
                         b.links.add(it['@href'])
@@ -136,8 +143,12 @@ public class BookIndex {
                 dirPath, dirName, bookFolderDepth, 
                 indexName, allBooks, 
                 prevXmlName, nextXmlName)
-            monthTemplate.createHtml()
+            if (monthTemplate.createHtml()) {
+                pagesUpdated++
+            }
         }
+        println "\n-----------------"
+        println pagesUpdated + " page(s) updated"
     }
 
     void scanDirList(File[] dirs, int depth) {
@@ -178,16 +189,16 @@ public class BookIndex {
         return fname.substring(0,k+1)
     }
 
-    void generateAllSectionsHtml() {
+    boolean generateAllSectionsHtml() {
         // allSections содержит уникальное соответствие книг секциям
         // allSections2 содержит дубликатное соответствие книг секциям
-        generateAllSectionsHtml(allSections2)
+        return generateAllSectionsHtml(allSections2)
     }
 
     /**
      * Generates "all_sections.html" file aka "Book Index"
      */
-    def generateAllSectionsHtml(Map<String, List<Book>> allSections) {
+    boolean generateAllSectionsHtml(Map<String, List<Book>> allSections) {
         String bootstrapCDN = MonthTemplate.bootstrapCDN;
 
         def keys = new ArrayList(allSections.keySet())
@@ -196,7 +207,8 @@ public class BookIndex {
         def excludedSections = ['Palm C']
         keys.removeAll(excludedSections)
 
-        def writer2 = new FileWriter(indexName)
+        StringWriter stw = new StringWriter();
+        def writer2 = new PrintWriter(stw)
         writer2.println """
             <!doctype html>
             <html lang="en">
@@ -233,13 +245,12 @@ public class BookIndex {
                 """.stripIndent()
             def bookList = allSections.get(key)
             def otherSections = new HashSet()
-            for (bookInfo in bookList) {
+            for (b in bookList) {
                 // собрать строку для html файла
-                String folderLink = bookHome + '/' + bookInfo.folder
-                writer2 << "<li> <a href='${folderLink}/books.html'><code>${bookInfo.folder}</code></a> "+
-                           "<i>${bookInfo.author}</i> "+
-                           "<a href='${folderLink}/books.html#${bookInfo.source}'>\"${bookInfo.title}\"</a> </li>\n"
-                otherSections.addAll(getOtherSections(allSections, bookInfo))
+                writer2 << "<li> <a href='${b.path}/books.html'><code>${b.folder}</code></a> "+
+                           "<i>${b.author}</i> "+
+                           "<a href='${b.path}/books.html#${b.source}'>\"${b.title}\"</a> </li>\n"
+                otherSections.addAll(getOtherSections(allSections, b))
             }
             writer2.println "</ul>"
 
@@ -260,8 +271,8 @@ public class BookIndex {
             </html>
             """.stripIndent()
 
-        writer2.close()
-        println "Book Index created: " + indexName
+        //writer2.close()
+        return StrUtils.saveIfNeeded(indexName, stw.toString())
     }
 
     def getOtherSections(allSections, bookInfo) {

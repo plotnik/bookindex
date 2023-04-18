@@ -10,6 +10,7 @@ public class Book {
     String author;
     String source;
     String folder;
+    String path;
 
     List<String> links = new ArrayList<>();
     List<String> sections = new ArrayList<>();
@@ -19,7 +20,7 @@ public class Book {
     @Override
     public String toString() {
         return "Book [name=" + name + ", title=" + title + ", author=" + author + ", source=" + source + ", folder="
-                + folder + ", links=" + links + ", sections=" + sections + ", obsidian=" + obsidian + "]";
+                + folder + ", path=" + path + ", links=" + links + ", sections=" + sections + ", obsidian=" + obsidian + "]";
     }
 
     public String getName() {
@@ -84,5 +85,13 @@ public class Book {
 
     public void setObsidian(String obsidian) {
         this.obsidian = obsidian;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

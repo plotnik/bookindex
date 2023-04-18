@@ -3,15 +3,9 @@ package io.github.plotnik;
 import static java.lang.System.*;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -56,10 +50,9 @@ public class MonthTemplate {
                 + "]";
     }
 
-    void createHtml() throws FileNotFoundException {
+    boolean createHtml() throws FileNotFoundException {
         String outFile = dirPath + "/books.html";
-        PrintWriter f = new PrintWriter(new FileOutputStream(outFile));
-        f.printf("""
+        String text = String.format("""
             <!doctype html>
             <html lang="en">
             <head>
@@ -78,8 +71,7 @@ public class MonthTemplate {
             </html>
             """,
             dirName, bootstrapCDN, createHeader(), createContent(), bootstrapCDN);
-        f.close();
-        out.println("File created: " + outFile);
+        return StrUtils.saveIfNeeded(outFile, text);
     }
 
     String createHeader() {
@@ -187,24 +179,6 @@ public class MonthTemplate {
         }
         sb.append("</ul>");
         return sb.toString();
-    }
-
-    public static String getObsidianLink(String dirPath, String source) {
-        Path dir = Paths.get(dirPath, source + "_code");
-        if (!Files.exists(dir)) {
-            return null;
-        }
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "* Book")) {
-            for (Path entry: stream) {
-                String name = entry.getFileName().toString();
-                //String obsidianPath = entry.resolve(name + ".md").relativize(dirPath).toString();
-                //System.out.println("obsidianPath: " + obsidianPath);
-                String obsidianPath = source + "_code/" + name + "/" + name + ".md";
-                return obsidianPath;
-            }
-        } catch (IOException e) {
-        }
-        return null;
     }
 
 }

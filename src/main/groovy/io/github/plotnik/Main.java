@@ -121,7 +121,9 @@ public class Main implements Callable<Integer> {
     void createBookIndex() throws FileNotFoundException {
         BookIndex bookIndex = new BookIndex(bookHome, bookFolderDepth, indexFile, verbose);
         bookIndex.scanBooksXml();
-        bookIndex.generateAllSectionsHtml();
+        if (bookIndex.generateAllSectionsHtml()) {
+            out.println("Book Index created: " + indexFile);
+        }
     }
 
     void extractTOC(String inputFilePdf) {
