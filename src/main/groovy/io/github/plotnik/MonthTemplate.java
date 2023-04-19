@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 
 public class MonthTemplate {
@@ -33,7 +33,7 @@ public class MonthTemplate {
         this.prevXmlName = prevXmlName;
         this.nextXmlName = nextXmlName;
  
-        this.indexPath = Paths.get(indexName).toUri().toString();
+        this.indexPath = Path.of(dirPath).relativize(Path.of(indexName)).toString();
  
         StringBuilder sb = new StringBuilder();
         for (int i=0; i<bookFolderDepth; i++) {
