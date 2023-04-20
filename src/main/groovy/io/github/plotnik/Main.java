@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
 
 import picocli.CommandLine;
 import static picocli.CommandLine.*;
@@ -34,7 +35,7 @@ import java.util.concurrent.Callable;
     "@|cyan    88888P\"   \"Y88P\"   \"Y88P\"  888  888 888 888  888  \"Y88888  \"Y8888  888  888 |@",
     ""
     },
-    name = "bookindex", mixinStandardHelpOptions = true, version = "1.1",
+    name = "bookindex", mixinStandardHelpOptions = true, version = "1.2",
     description = "Generate html index of my library with PDF books on programming.")
 public class Main implements Callable<Integer> {
 
@@ -42,18 +43,11 @@ public class Main implements Callable<Integer> {
                 defaultValue = ".")
     String bookHome;
     
-    @Option(names = {"-d", "--depth"}, description = "Depth of book folders.",
-            defaultValue = "2")
-    int bookFolderDepth;
-
     @Option(names = {"-p", "--props"}, description = "Name of property file.")
     String propertyFileName;
 
     @Option(names = {"-g", "--gui-dashboard"}, description = "Open GUI dashboard")
     boolean dashboard;
-
-    @Option(names = {"-i", "--index"}, description = "Index output file", defaultValue="all_sections.html")
-    String indexFile;
 
     @Option(names = {"-f", "--file"}, description = "PDF file to extract TOC as mindmap")
     String inputFilePdf;
@@ -70,6 +64,12 @@ public class Main implements Callable<Integer> {
     Settings settings = new Settings();
 
     BookIndex bookIndex;
+
+    // Depth of book folders.        
+    int bookFolderDepth;
+
+    // Index output file
+    String indexFile;
 
     @Override
     public Integer call() {
@@ -90,11 +90,10 @@ public class Main implements Callable<Integer> {
                 return 0;
             }
 
-            if (bookFolderDepth < 0) {
-                err.println("[ERROR] Depth of book folders should not be a negative number");
-                return 1;
-            }
-
+            calcBookFolderDepth(bookHome);
+            indexFile = Path.of(bookHome, "all_sections.html").toString();
+            out.println("Book Index: " + indexFile);
+        
             bookIndex = new BookIndex(bookHome, bookFolderDepth, indexFile, 
                                       obsidianOnly, verbose);
 
@@ -107,7 +106,7 @@ public class Main implements Callable<Integer> {
                 }
 
                 if (bookIndex.generateAllSectionsHtml()) {
-                    out.println("Book Index created: " + indexFile);
+                    out.println("Book Index updated: " + indexFile);
                 }
 
             } catch(FileNotFoundException e) {
@@ -127,6 +126,23 @@ public class Main implements Callable<Integer> {
         }
 
         return 0;
+    }
+
+    void calcBookFolderDepth(String bookHome) throws BookException {
+        Path p = Path.of(bookHome);
+        int k = p.getNameCount();
+        String root = p.getName(0).toString();
+        if (k > 2) {
+            throw new BookException("Books folder must have no more than 2 subfolders");
+        }
+        if ("..".equals(root)) {
+            throw new BookException("Books folder must be inside the current folder");
+        }
+        if (".".equals(root)) {
+            k--;
+        }
+
+        bookFolderDepth = 2 - k;
     }
 
     void extractTOC(String inputFilePdf) {

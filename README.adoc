@@ -1,5 +1,6 @@
 = Generate html index of my library with PDF books on programming
 :icons: font
+Version 1.2
 
 == Usage
 
@@ -13,21 +14,18 @@
    888 d88P Y88..88P Y88..88P 888 "88b 888 888  888 Y88b 888 Y8b.     .d8""8b.
    88888P"   "Y88P"   "Y88P"  888  888 888 888  888  "Y88888  "Y8888  888  888
 
-Usage: bookindex [-ghovV] [-d=<bookFolderDepth>] [-f=<inputFilePdf>]
-                 [-i=<indexFile>] [-p=<propertyFileName>] <bookHome>
+Usage: bookindex [-ghovV] [-f=<inputFilePdf>] [-p=<propertyFileName>] <bookHome>
 Generate html index of my library with PDF books on programming.
-      <bookHome>            Books home folder
-  -d, --depth=<bookFolderDepth>
-                            Depth of book folders.
-  -f, --file=<inputFilePdf> PDF file to extract TOC as mindmap
-  -g, --gui-dashboard       Open GUI dashboard
-  -h, --help                Show this help message and exit.
-  -i, --index=<indexFile>   Index output file
-  -o, --obsidian            Show Obsidian books
+      <bookHome>        Books home folder
+  -f, --file=<inputFilePdf>
+                        PDF file to extract TOC as mindmap
+  -g, --gui-dashboard   Open GUI dashboard
+  -h, --help            Show this help message and exit.
+  -o, --obsidian        Show Obsidian books
   -p, --props=<propertyFileName>
-                            Name of property file.
-  -v, --verbose             Verbose output
-  -V, --version             Print version information and exit.
+                        Name of property file.
+  -v, --verbose         Verbose output
+  -V, --version         Print version information and exit.
 ----
 
 == Folder structure

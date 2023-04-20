@@ -2,9 +2,12 @@ package io.github.plotnik;
 
 import groovy.xml.*
 
+import java.nio.file.Path;
+
 public class BookIndex {
 
     String bookHome;
+    Path bookHomePath;
     int bookFolderDepth;
     String indexName;
     boolean obsidianOnly;
@@ -61,6 +64,7 @@ public class BookIndex {
               boolean obsidianOnly, 
               boolean verbose) {
         this.bookHome = bookHome;
+        this.bookHomePath = Path.of(bookHome);
         this.bookFolderDepth = bookFolderDepth;
         this.indexName = indexName;
         this.obsidianOnly = obsidianOnly;
@@ -278,32 +282,8 @@ public class BookIndex {
             def bookList = allSections.get(key)
             def otherSections = new HashSet()
             for (b in bookList) {
-                
-                /* TODO: 2023-04-19
 
-                В `b.path` находится путь к папке месяца, например `./2022/22-12`.
-                Мы генерируем файл общего индекса, который находится по пути 
-                `indexName`, например `test/all_sections.html`. 
-                Сейчас линки `bookLink` будут работать только для дефолтного значения 
-                `indexName` = `all_sections.html`.
-
-                Хотелось убрать эту проблему с помощью такого кода:
-                ```
-                Path indexPath = Path.of(indexName);
-                Path bookPath = Path.of(b.path + "/books.html");
-                String bookLink = indexPath.relativize(bookPath).toString();
-                ```
-                В результате для
-                ``` 
-                indexName = "test/all_sections.html";
-                b.path = "./2022/22-12";
-                ```
-                получаем broken link:
-                ```
-                bookLink = "../../2022/22-12/books.html"
-                ```
-                 */
-                String bookLink = b.path + "/books.html"; 
+                String bookLink = calcBookLink(b.path) 
                  
                 // собрать строку для html файла
                 writer2 << "<li> <a href='${bookLink}'><code>${b.folder}</code></a> "+
@@ -332,6 +312,10 @@ public class BookIndex {
 
         //writer2.close()
         return StrUtils.saveIfNeeded(indexName, stw.toString())
+    }
+
+    String calcBookLink(String bookPath) {
+        return bookHomePath.relativize(Path.of(bookPath, "books.html")).toString();
     }
 
     def getOtherSections(allSections, bookInfo) {
