@@ -138,7 +138,7 @@ public class MonthTemplate {
             </div>
             """,
             imageLink, 
-            book.getTitle(),
+            book.getSource(),
             book.getSource(),
             book.getTitle(),
             book.getAuthor(),
