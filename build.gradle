@@ -31,7 +31,7 @@ task fatjar(type: Jar) {
     manifest {
         attributes "Main-Class": "io.github.plotnik.Main"
     }
-    baseName = "bookindex-all"
+    archiveBaseName = "bookindex-all"
     from {
         configurations.compileClasspath.filter{ it.exists() }
             .collect { it.isDirectory() ? it : zipTree(it) }

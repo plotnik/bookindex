@@ -16,11 +16,14 @@ public class Book {
     List<String> sections = new ArrayList<>();
 
     String obsidian;
+    String html;
+
 
     @Override
     public String toString() {
         return "Book [name=" + name + ", title=" + title + ", author=" + author + ", source=" + source + ", folder="
-                + folder + ", path=" + path + ", links=" + links + ", sections=" + sections + ", obsidian=" + obsidian + "]";
+                + folder + ", path=" + path + ", links=" + links + ", sections=" + sections 
+                + ", obsidian=" + obsidian + ", html=" + html + "]";
     }
 
     public String getName() {
@@ -85,6 +88,14 @@ public class Book {
 
     public void setObsidian(String obsidian) {
         this.obsidian = obsidian;
+    }
+    
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
     }
 
     public String getPath() {

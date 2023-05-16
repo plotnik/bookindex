@@ -56,5 +56,14 @@ public class StrUtils {
         }
         return null;
     }
-
+    
+    public static String getHtmlLink(String dirPath, String source) {
+        String link = source + "_code/html/index.html";
+        Path path = Path.of(dirPath, link);
+        if (!Files.exists(path)) {
+            return null; 
+        } else {
+            return link;
+        }
+    }
 }

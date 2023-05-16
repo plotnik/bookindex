@@ -132,6 +132,7 @@ public class BookIndex {
                     b.path = dirPath
 
                     b.obsidian = StrUtils.getObsidianLink(dirPath, b.source)
+                    b.html = StrUtils.getHtmlLink(dirPath, b.source)
 
                     book.a.each {
                         b.links.add(it['@href'])
@@ -139,6 +140,9 @@ public class BookIndex {
 
                     if (b.obsidian != null) {
                         b.links.add(b.obsidian)
+                    }
+                    if (b.html != null) {
+                        b.links.add(b.html)
                     }
 
                     // добавить книгу в общий список
