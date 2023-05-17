@@ -53,8 +53,8 @@ public class Main implements Callable<Integer> {
     @Option(names = {"-f", "--file"}, description = "PDF file to extract TOC as mindmap")
     String inputFilePdf;
 
-    @Option(names = {"-d", "--dropbox"}, description = "Dropbox folder")
-    String dropboxFolder;
+    @Option(names = {"-d", "--dropbox"}, description = "Use Dropbox")
+    boolean useDropbox;
 
     @Option(names = {"-v", "--verbose"}, description = "Verbose output")
     static boolean verbose;
@@ -74,6 +74,8 @@ public class Main implements Callable<Integer> {
 
     // Index output file
     String indexFile;
+
+    String dropboxFolder;
 
     @Override
     public Integer call() {
@@ -98,7 +100,7 @@ public class Main implements Callable<Integer> {
             indexFile = Path.of(bookHome, "all_sections.html").toString();
             out.println("Book Index: " + indexFile);
 
-            if (dropboxFolder == null) {
+            if (useDropbox) {
                 String dropbox = System.getProperty("user.home") + "/Dropbox/Public/books";
                 if (Files.exists(Path.of(dropbox))) {
                     dropboxFolder = dropbox;

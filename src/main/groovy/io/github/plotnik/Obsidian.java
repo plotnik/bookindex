@@ -18,9 +18,11 @@ public class Obsidian {
     Obsidian(String dirPath, String source, String dropboxPath) {
         this.source = source;
         dir = Path.of(dirPath, source + "_code");
-        dropbox = Path.of(dropboxPath, dirPath, source + "_code");
-        if (Files.exists(dropbox)) {
-            dropboxLink = checkDropboxLink();
+        if (dropboxPath != null) {
+            dropbox = Path.of(dropboxPath, dirPath, source + "_code");
+            if (Files.exists(dropbox)) {
+                dropboxLink = checkDropboxLink();
+            }    
         }
         if (!Files.exists(dir)) {
            return;
