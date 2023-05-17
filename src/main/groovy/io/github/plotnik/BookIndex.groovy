@@ -10,7 +10,9 @@ public class BookIndex {
     Path bookHomePath;
     int bookFolderDepth;
     String indexName;
-    boolean obsidianOnly;
+
+    String dropboxFolder;
+    boolean checkObsidianMode;
     boolean verbose;
 
     XmlParser xmlParser = new XmlParser();
@@ -61,13 +63,15 @@ public class BookIndex {
     BookIndex(String bookHome, 
               int bookFolderDepth, 
               String indexName,
-              boolean obsidianOnly, 
+              String dropboxFolder,
+              boolean checkObsidianMode, 
               boolean verbose) {
         this.bookHome = bookHome;
         this.bookHomePath = Path.of(bookHome);
         this.bookFolderDepth = bookFolderDepth;
         this.indexName = indexName;
-        this.obsidianOnly = obsidianOnly;
+        this.dropboxFolder = dropboxFolder;
+        this.checkObsidianMode = checkObsidianMode;
         this.verbose = verbose;
     }
 
@@ -131,19 +135,19 @@ public class BookIndex {
                     b.folder = dirName
                     b.path = dirPath
 
-                    b.obsidian = StrUtils.getObsidianLink(dirPath, b.source)
-                    b.html = StrUtils.getHtmlLink(dirPath, b.source)
+                    b.obsidian = new Obsidian(dirPath, b.source, dropboxFolder)
 
                     book.a.each {
                         b.links.add(it['@href'])
                     }
 
+                    /*
                     if (b.obsidian != null) {
                         b.links.add(b.obsidian)
                     }
                     if (b.html != null) {
                         b.links.add(b.html)
-                    }
+                    }*/
 
                     // добавить книгу в общий список
                     allBooks.add(b)
@@ -154,12 +158,12 @@ public class BookIndex {
                     moreSections.each { sect ->
                         addBookForSection(allSections2, b, sect['@name'])
                     }
-                    if (b.obsidian != null) {
+                    if (b.obsidian.bookLink != null) {
                         addBookForSection(allSections2, b, "Obsidian")
                     }
                 }
             }
-            if (!obsidianOnly) {
+            if (!checkObsidianMode) {
                 pdfChecker.verifyAllPdfsAdded(dirPath, dirName)
                 
                 // сгенерировать html-файл для текущего месяца 
@@ -216,7 +220,7 @@ public class BookIndex {
         return fname.substring(0,k+1)
     }
 
-    void showObsidian() {
+    void showObsidianChecks() {
         println "Find Obsidian books:"
         int ocount = 0;
         for (Book b: allBooks2) {

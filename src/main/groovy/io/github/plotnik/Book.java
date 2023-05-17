@@ -15,15 +15,15 @@ public class Book {
     List<String> links = new ArrayList<>();
     List<String> sections = new ArrayList<>();
 
-    String obsidian;
-    String html;
+    Obsidian obsidian;
 
 
     @Override
     public String toString() {
         return "Book [name=" + name + ", title=" + title + ", author=" + author + ", source=" + source + ", folder="
                 + folder + ", path=" + path + ", links=" + links + ", sections=" + sections 
-                + ", obsidian=" + obsidian + ", html=" + html + "]";
+                + ", obsidian=" + obsidian 
+                + "]";
     }
 
     public String getName() {
@@ -81,23 +81,7 @@ public class Book {
     public void setSections(List<String> sections) {
         this.sections = sections;
     }
-    
-    public String getObsidian() {
-        return obsidian;
-    }
-
-    public void setObsidian(String obsidian) {
-        this.obsidian = obsidian;
-    }
-    
-    public String getHtml() {
-        return html;
-    }
-
-    public void setHtml(String html) {
-        this.html = html;
-    }
-
+        
     public String getPath() {
         return path;
     }
@@ -105,4 +89,13 @@ public class Book {
     public void setPath(String path) {
         this.path = path;
     }
+
+    public Obsidian getObsidian() {
+        return obsidian;
+    }
+
+    public void setObsidian(Obsidian obsidian) {
+        this.obsidian = obsidian;
+    }
+
 }

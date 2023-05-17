@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import picocli.CommandLine;
@@ -52,11 +53,14 @@ public class Main implements Callable<Integer> {
     @Option(names = {"-f", "--file"}, description = "PDF file to extract TOC as mindmap")
     String inputFilePdf;
 
+    @Option(names = {"-d", "--dropbox"}, description = "Dropbox folder")
+    String dropboxFolder;
+
     @Option(names = {"-v", "--verbose"}, description = "Verbose output")
     static boolean verbose;
 
     @Option(names = {"-o", "--obsidian"}, description = "Show Obsidian books")
-    static boolean obsidianOnly;
+    static boolean checkObsidianMode;
 
 
     Object lock = new Object();
@@ -89,19 +93,26 @@ public class Main implements Callable<Integer> {
                 extractTOC(inputFilePdf);
                 return 0;
             }
-
+                        
             calcBookFolderDepth(bookHome);
             indexFile = Path.of(bookHome, "all_sections.html").toString();
             out.println("Book Index: " + indexFile);
+
+            if (dropboxFolder == null) {
+                String dropbox = System.getProperty("user.home") + "/Dropbox/Public/books";
+                if (Files.exists(Path.of(dropbox))) {
+                    dropboxFolder = dropbox;
+                }
+            }
         
             bookIndex = new BookIndex(bookHome, bookFolderDepth, indexFile, 
-                                      obsidianOnly, verbose);
+                                      dropboxFolder, checkObsidianMode, verbose);
 
             try {
                 bookIndex.scanBooksXml();
 
-                if (obsidianOnly) {
-                    bookIndex.showObsidian();
+                if (checkObsidianMode) {
+                    bookIndex.showObsidianChecks();
                     return 0;
                 }
 

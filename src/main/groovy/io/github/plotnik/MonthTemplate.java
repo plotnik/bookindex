@@ -177,8 +177,26 @@ public class MonthTemplate {
               """, 
               sectionLink, section));
         }
+
+        sb.append(createObsidian("Book", book.getObsidian().getBookLink()));
+        sb.append(createObsidian("HTML", book.getObsidian().getHtmlLink()));
+        sb.append(createObsidian("Dropbox", book.getObsidian().getDropboxLink()));
+        
         sb.append("</ul>");
         return sb.toString();
+    }
+
+    String createObsidian(String title, String link) {
+        if (link == null) {
+            return "";
+        } else {
+            return String.format("""
+                <li class="nav-item">
+                  <a class="nav-link" href="%s">%s</a>
+                </li>
+                """, 
+                link, title);
+        }
     }
 
 }
