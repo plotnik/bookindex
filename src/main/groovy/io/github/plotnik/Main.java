@@ -53,7 +53,7 @@ public class Main implements Callable<Integer> {
     @Option(names = {"-f", "--file"}, description = "PDF file to extract TOC as mindmap")
     String inputFilePdf;
 
-    @Option(names = {"-d", "--dropbox"}, description = "Use Dropbox")
+    @Option(names = {"-d", "--dropbox"}, description = "Add a link to the Obsidian Book in Dropbox, if it exists")
     boolean useDropbox;
 
     @Option(names = {"-v", "--verbose"}, description = "Verbose output")
