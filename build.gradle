@@ -85,6 +85,6 @@ javadoc {
 */
 
 task run(type:JavaExec) {
-   main = 'io.github.plotnik.bookindex'
+   mainClass = 'io.github.plotnik.bookindex'
    classpath = sourceSets.main.runtimeClasspath
 }
